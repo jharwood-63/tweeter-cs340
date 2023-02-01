@@ -1,8 +1,15 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import java.util.List;
+import android.widget.Toast;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class GetFollowingPresenter {
@@ -20,6 +27,8 @@ public class GetFollowingPresenter {
 
     private FollowService followService;
 
+    private UserService userService;
+
     private User lastFollowee;
 
     private boolean hasMorePages;
@@ -28,6 +37,7 @@ public class GetFollowingPresenter {
     public GetFollowingPresenter(View view) {
         this.view = view;
         followService = new FollowService();
+        userService = new UserService();
     }
 
     public boolean hasMorePages() {
@@ -42,16 +52,16 @@ public class GetFollowingPresenter {
         return isLoading;
     }
 
-    public void setLoading(boolean loading) {
-        isLoading = loading;
-    }
-
     public void loadMoreItems(User user) {
         if (!isLoading) { // This guard is important for avoiding a race condition in the scrolling code.
             isLoading = true;
             view.setLoadingFooter(isLoading);
             followService.loadMoreItems(user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
         }
+    }
+
+    public void getUser(String userAlias) {
+        userService.getUser(userAlias);
     }
 
     private class GetFollowingObserver implements FollowService.Observer {
@@ -77,5 +87,9 @@ public class GetFollowingPresenter {
             setHasMorePages(hasMorePages);
             view.addMoreItems(followees);
         }
+    }
+
+    private class getUserObserver implements UserService.Observer {
+
     }
 }

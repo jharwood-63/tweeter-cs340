@@ -52,7 +52,7 @@ public class GetFollowingPresenter {
         if (!isLoading) { // This guard is important for avoiding a race condition in the scrolling code.
             isLoading = true;
             view.setLoadingFooter(isLoading);
-            followService.loadMoreItems(user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
+            followService.getFollowees(user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
         }
     }
 
@@ -82,11 +82,6 @@ public class GetFollowingPresenter {
             lastFollowee = (followees.size() > 0) ? followees.get(followees.size() - 1) : null;
             setHasMorePages(hasMorePages);
             view.addMoreItems(followees);
-        }
-
-        @Override
-        public void addFollowers(List<User> followers, boolean hasMorePages) {
-            // NOT NEEDED HERE
         }
     }
 

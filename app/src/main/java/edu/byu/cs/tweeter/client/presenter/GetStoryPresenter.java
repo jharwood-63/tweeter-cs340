@@ -2,39 +2,41 @@ package edu.byu.cs.tweeter.client.presenter;
 
 import java.util.List;
 
-import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class GetFollowersPresenter {
+public class GetStoryPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
-        void setLoadingFooter(boolean value);
 
         void displayMessage(String message);
 
-        void addMoreItems(List<User> followers);
-
         void showUser(User user);
+
+        void setLoadingFooter(boolean value);
+
+        void addMoreItems(List<Status> statuses);
     }
 
     private View view;
 
-    private FollowService followService;
-    
     private UserService userService;
 
-    private User lastFollower;
+    private StatusService statusService;
+
+    private Status lastStatus;
 
     private boolean hasMorePages;
 
     private boolean isLoading = false;
 
-    public GetFollowersPresenter(View view) {
+    public GetStoryPresenter(View view) {
         this.view = view;
-        followService = new FollowService();
         userService = new UserService();
+        statusService = new StatusService();
     }
 
     public boolean hasMorePages() {
@@ -53,44 +55,18 @@ public class GetFollowersPresenter {
         isLoading = loading;
     }
 
-    public void loadMoreItems(User user) {
-        if (!isLoading) {   // This guard is important for avoiding a race condition in the scrolling code.
-            isLoading = true;
-            view.setLoadingFooter(isLoading);
-            followService.getFollowers(user, PAGE_SIZE, lastFollower, new GetFollowersObserver());
-        }
-    }
-
     public void getUser(String userAlias) {
         userService.getUser(userAlias, new GetUserObserver());
     }
 
-    private class GetFollowersObserver implements FollowService.Observer {
-
-        @Override
-        public void displayError(String message) {
-            isLoading = false;
+    public void loadMoreItems(User user) {
+        if (!isLoading) {   // This guard is important for avoiding a race condition in the scrolling code.
+            isLoading = true;
             view.setLoadingFooter(isLoading);
-            view.displayMessage(message);
-        }
-
-        @Override
-        public void displayException(Exception ex) {
-            isLoading = false;
-            view.setLoadingFooter(isLoading);
-            view.displayMessage("Failed to get followers because of exception: " + ex.getMessage());
-        }
-
-        @Override
-        public void addFollowees(List<User> followers, boolean hasMorePages) {
-            isLoading = false;
-            view.setLoadingFooter(false);
-            lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
-            setHasMorePages(hasMorePages);
-            view.addMoreItems(followers);
+            statusService.getStory(user, PAGE_SIZE, lastStatus, new GetStoryObserver());
         }
     }
-    
+
     private class GetUserObserver implements UserService.Observer {
 
         @Override
@@ -101,6 +77,32 @@ public class GetFollowersPresenter {
         @Override
         public void showUser(User user) {
             view.showUser(user);
+        }
+    }
+
+    private class GetStoryObserver implements StatusService.Observer {
+
+        @Override
+        public void displayError(String message) {
+            isLoading = false;
+            view.setLoadingFooter(isLoading);
+            view.displayMessage("Failed to get story: " + message);
+        }
+
+        @Override
+        public void displayException(Exception ex) {
+            isLoading = false;
+            view.setLoadingFooter(isLoading);
+            view.displayMessage("Failed to get story because of exception: " + ex.getMessage());
+        }
+
+        @Override
+        public void addStatuses(List<Status> statuses, boolean hasMorePages) {
+            isLoading = false;
+            view.setLoadingFooter(isLoading);
+            lastStatus = (statuses.size() > 0) ? statuses.get(statuses.size() - 1) : null;
+            setHasMorePages(hasMorePages);
+            view.addMoreItems(statuses);
         }
     }
 }

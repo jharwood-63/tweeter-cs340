@@ -3,7 +3,6 @@ package edu.byu.cs.tweeter.client.model.service;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -24,18 +23,16 @@ public class FollowService {
         void displayException(Exception ex);
 
         void addFollowees(List<User> followees, boolean hasMorePages);
-
-        void addFollowers(List<User> followers, boolean hasMorePages);
     }
 
-    public void loadMoreItems(User user, int pageSize, User lastFollowee, Observer observer) {
+    public void getFollowees(User user, int pageSize, User lastFollowee, Observer observer) {
         GetFollowingTask getFollowingTask = new GetFollowingTask(Cache.getInstance().getCurrUserAuthToken(),
                 user, pageSize, lastFollowee, new GetFollowingHandler(observer));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(getFollowingTask);
     }
 
-    public void loadMoreFollowers(User user, int pageSize, User lastFollower, Observer observer) {
+    public void getFollowers(User user, int pageSize, User lastFollower, Observer observer) {
         GetFollowersTask getFollowersTask = new GetFollowersTask(Cache.getInstance().getCurrUserAuthToken(),
                 user, pageSize, lastFollower, new GetFollowersHandler(observer));
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -87,7 +84,7 @@ public class FollowService {
             if (success) {
                 List<User> followers = (List<User>) msg.getData().getSerializable(GetFollowersTask.FOLLOWERS_KEY);
                 boolean hasMorePages = msg.getData().getBoolean(GetFollowersTask.MORE_PAGES_KEY);
-                observer.addFollowers(followers, hasMorePages);
+                observer.addFollowees(followers, hasMorePages);
             } else if (msg.getData().containsKey(GetFollowersTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(GetFollowersTask.MESSAGE_KEY);
                 observer.displayError("Failed to get followers: " + message);

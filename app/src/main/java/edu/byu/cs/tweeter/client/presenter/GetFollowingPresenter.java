@@ -1,15 +1,9 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import android.widget.Toast;
-
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class GetFollowingPresenter {
@@ -21,6 +15,8 @@ public class GetFollowingPresenter {
         void displayMessage(String message);
 
         void addMoreItems(List<User> followees);
+
+        void showUser(User user);
     }
 
     private View view;
@@ -61,7 +57,7 @@ public class GetFollowingPresenter {
     }
 
     public void getUser(String userAlias) {
-        userService.getUser(userAlias);
+        userService.getUser(userAlias, new GetUserObserver());
     }
 
     private class GetFollowingObserver implements FollowService.Observer {
@@ -89,7 +85,15 @@ public class GetFollowingPresenter {
         }
     }
 
-    private class getUserObserver implements UserService.Observer {
+    private class GetUserObserver implements UserService.Observer {
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
 
+        @Override
+        public void showUser(User user) {
+            view.showUser(user);
+        }
     }
 }

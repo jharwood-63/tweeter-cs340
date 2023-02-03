@@ -1,7 +1,6 @@
 package edu.byu.cs.tweeter.client.presenter;
 
 import android.util.Log;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,20 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
-import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -43,6 +33,10 @@ public class MainPresenter {
         void logoutUser();
 
         void cancelPostToast();
+
+        void displayFollowerCount(int count);
+
+        void displayFollowingCount(int count);
     }
 
     private View view;
@@ -70,6 +64,10 @@ public class MainPresenter {
 
     public void follow(User selectedUser) {
         followService.follow(selectedUser, new UpdateFollowStatusObserver());
+    }
+
+    public void updateFollowingAndFollowers(User selectedUser) {
+        followService.updateFollowingAndFollowers(selectedUser, new UpdateCountObserver());
     }
 
     public void logout() {
@@ -190,6 +188,24 @@ public class MainPresenter {
         @Override
         public void setFollowButtonEnabled(boolean value) {
             view.setFollowButtonEnabled(value);
+        }
+    }
+
+    private class UpdateCountObserver implements FollowService.UpdateCountObserver {
+
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void displayFollowerCount(int count) {
+            view.displayFollowerCount(count);
+        }
+
+        @Override
+        public void displayFollowingCount(int count) {
+            view.displayFollowingCount(count);
         }
     }
 

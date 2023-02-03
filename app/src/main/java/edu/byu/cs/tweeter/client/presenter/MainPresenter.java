@@ -1,22 +1,34 @@
 package edu.byu.cs.tweeter.client.presenter;
 
+import android.util.Log;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class MainPresenter {
+    private static final String LOG_TAG = "MainActivity";
+
     public interface View {
         void displayMessage(String message);
 
@@ -29,6 +41,8 @@ public class MainPresenter {
         void setFollowButtonEnabled(boolean value);
 
         void logoutUser();
+
+        void cancelPostToast();
     }
 
     private View view;
@@ -37,10 +51,13 @@ public class MainPresenter {
 
     private UserService userService;
 
+    private StatusService statusService;
+
     public MainPresenter(View view) {
         this.view = view;
         followService = new FollowService();
         userService = new UserService();
+        statusService = new StatusService();
     }
 
     public void checkIsFollower(User selectedUser) {
@@ -59,6 +76,82 @@ public class MainPresenter {
         userService.logout(new LogoutObserver());
     }
 
+    public void postStatus(String post) {
+        try {
+            Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
+            statusService.postStatus(newStatus, new PostObserver());
+        } catch (Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage(), ex);
+            view.displayMessage("Failed to post the status because of exception: " + ex.getMessage());
+        }
+    }
+
+    // Helper Functions
+    public String getFormattedDateTime() throws ParseException {
+        SimpleDateFormat userFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        SimpleDateFormat statusFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
+
+        return statusFormat.format(userFormat.parse(LocalDate.now().toString() + " " + LocalTime.now().toString().substring(0, 8)));
+    }
+
+    public List<String> parseURLs(String post) {
+        List<String> containedUrls = new ArrayList<>();
+        for (String word : post.split("\\s")) {
+            if (word.startsWith("http://") || word.startsWith("https://")) {
+
+                int index = findUrlEndIndex(word);
+
+                word = word.substring(0, index);
+
+                containedUrls.add(word);
+            }
+        }
+
+        return containedUrls;
+    }
+
+    public int findUrlEndIndex(String word) {
+        if (word.contains(".com")) {
+            int index = word.indexOf(".com");
+            index += 4;
+            return index;
+        } else if (word.contains(".org")) {
+            int index = word.indexOf(".org");
+            index += 4;
+            return index;
+        } else if (word.contains(".edu")) {
+            int index = word.indexOf(".edu");
+            index += 4;
+            return index;
+        } else if (word.contains(".net")) {
+            int index = word.indexOf(".net");
+            index += 4;
+            return index;
+        } else if (word.contains(".mil")) {
+            int index = word.indexOf(".mil");
+            index += 4;
+            return index;
+        } else {
+            return word.length();
+        }
+    }
+
+    public List<String> parseMentions(String post) {
+        List<String> containedMentions = new ArrayList<>();
+
+        for (String word : post.split("\\s")) {
+            if (word.startsWith("@")) {
+                word = word.replaceAll("[^a-zA-Z0-9]", "");
+                word = "@".concat(word);
+
+                containedMentions.add(word);
+            }
+        }
+
+        return containedMentions;
+    }
+
+    // Observers
     private class IsFollowerObserver implements FollowService.IsFollowerObserver{
 
         @Override
@@ -110,6 +203,19 @@ public class MainPresenter {
         @Override
         public void logoutUser() {
             view.logoutUser();
+        }
+    }
+
+    private class PostObserver implements StatusService.PostObserver {
+
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void cancelToast() {
+            view.cancelPostToast();
         }
     }
 }

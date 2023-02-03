@@ -135,7 +135,6 @@ public class FollowersFragment extends Fragment implements GetFollowersPresenter
             userAlias = itemView.findViewById(R.id.userAlias);
             userName = itemView.findViewById(R.id.userName);
 
-            // FIXME: MOVE THIS
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

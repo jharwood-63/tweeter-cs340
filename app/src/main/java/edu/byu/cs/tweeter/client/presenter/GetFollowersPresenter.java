@@ -1,12 +1,17 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import java.util.List;
+import android.widget.Toast;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
-import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class GetFollowingPresenter {
+public class GetFollowersPresenter {
     private static final int PAGE_SIZE = 10;
 
     public interface View {
@@ -14,26 +19,22 @@ public class GetFollowingPresenter {
 
         void displayMessage(String message);
 
-        void addMoreItems(List<User> followees);
-
-        void showUser(User user);
+        void addMoreItems(List<User> followers);
     }
 
     private View view;
 
     private FollowService followService;
 
-    private UserService userService;
-
-    private User lastFollowee;
+    private User lastFollower;
 
     private boolean hasMorePages;
+
     private boolean isLoading = false;
 
-    public GetFollowingPresenter(View view) {
+    public GetFollowersPresenter(View view) {
         this.view = view;
         followService = new FollowService();
-        userService = new UserService();
     }
 
     public boolean hasMorePages() {
@@ -48,19 +49,20 @@ public class GetFollowingPresenter {
         return isLoading;
     }
 
+    public void setLoading(boolean loading) {
+        isLoading = loading;
+    }
+
     public void loadMoreItems(User user) {
-        if (!isLoading) { // This guard is important for avoiding a race condition in the scrolling code.
+        if (!isLoading) {   // This guard is important for avoiding a race condition in the scrolling code.
             isLoading = true;
             view.setLoadingFooter(isLoading);
-            followService.loadMoreItems(user, PAGE_SIZE, lastFollowee, new GetFollowingObserver());
+            followService.loadMoreFollowers(user, PAGE_SIZE, lastFollower, new GetFollowersObserver());
         }
     }
 
-    public void getUser(String userAlias) {
-        userService.getUser(userAlias, new GetUserObserver());
-    }
+    private class GetFollowersObserver implements FollowService.Observer {
 
-    private class GetFollowingObserver implements FollowService.Observer {
         @Override
         public void displayError(String message) {
             isLoading = false;
@@ -72,33 +74,21 @@ public class GetFollowingPresenter {
         public void displayException(Exception ex) {
             isLoading = false;
             view.setLoadingFooter(isLoading);
-            view.displayMessage("Failed to get following because of exception: " + ex.getMessage());
+            view.displayMessage("Failed to get followers because of exception: " + ex.getMessage());
         }
 
         @Override
         public void addFollowees(List<User> followees, boolean hasMorePages) {
-            isLoading = false;
-            view.setLoadingFooter(isLoading);
-            lastFollowee = (followees.size() > 0) ? followees.get(followees.size() - 1) : null;
-            setHasMorePages(hasMorePages);
-            view.addMoreItems(followees);
+            // NOT NEEDED HERE
         }
 
         @Override
         public void addFollowers(List<User> followers, boolean hasMorePages) {
-            // NOT NEEDED HERE
-        }
-    }
-
-    private class GetUserObserver implements UserService.Observer {
-        @Override
-        public void displayMessage(String message) {
-            view.displayMessage(message);
-        }
-
-        @Override
-        public void showUser(User user) {
-            view.showUser(user);
+            isLoading = false;
+            view.setLoadingFooter(false);
+            lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
+            setHasMorePages(hasMorePages);
+            view.addMoreItems(followers);
         }
     }
 }

@@ -44,7 +44,6 @@ public class UserService {
             boolean success = msg.getData().getBoolean(GetUserTask.SUCCESS_KEY);
             if (success) {
                 User user = (User) msg.getData().getSerializable(GetUserTask.USER_KEY);
-
                 observer.showUser(user);
             } else if (msg.getData().containsKey(GetUserTask.MESSAGE_KEY)) {
                 String message = msg.getData().getString(GetUserTask.MESSAGE_KEY);

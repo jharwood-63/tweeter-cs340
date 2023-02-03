@@ -3,6 +3,7 @@ package edu.byu.cs.tweeter.client.model.service;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -10,9 +11,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
+import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowService {
@@ -23,6 +27,15 @@ public class FollowService {
         void displayException(Exception ex);
 
         void addFollowees(List<User> followees, boolean hasMorePages);
+    }
+
+    public interface MainObserver {
+
+        void displayError(String message);
+
+        void displayException(Exception ex);
+
+        void isFollower(boolean isFollower);
     }
 
     public void getFollowees(User user, int pageSize, User lastFollowee, Observer observer) {
@@ -37,6 +50,13 @@ public class FollowService {
                 user, pageSize, lastFollower, new GetFollowersHandler(observer));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(getFollowersTask);
+    }
+
+    public void isFollower(User selectedUser, MainObserver observer) {
+        IsFollowerTask isFollowerTask = new IsFollowerTask(Cache.getInstance().getCurrUserAuthToken(),
+                Cache.getInstance().getCurrUser(), selectedUser, new IsFollowerHandler(observer));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(isFollowerTask);
     }
 
     /**
@@ -90,6 +110,32 @@ public class FollowService {
                 observer.displayError("Failed to get followers: " + message);
             } else if (msg.getData().containsKey(GetFollowersTask.EXCEPTION_KEY)) {
                 Exception ex = (Exception) msg.getData().getSerializable(GetFollowersTask.EXCEPTION_KEY);
+                observer.displayException(ex);
+            }
+        }
+    }
+
+    // IsFollowerHandler
+    private class IsFollowerHandler extends Handler {
+
+        private MainObserver observer;
+
+        public IsFollowerHandler(MainObserver observer) {
+            super(Looper.getMainLooper());
+            this.observer = observer;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(IsFollowerTask.SUCCESS_KEY);
+            if (success) {
+                boolean isFollower = msg.getData().getBoolean(IsFollowerTask.IS_FOLLOWER_KEY);
+                observer.isFollower(isFollower);
+            } else if (msg.getData().containsKey(IsFollowerTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(IsFollowerTask.MESSAGE_KEY);
+                observer.displayError("Failed to determine following relationship: " + message);
+            } else if (msg.getData().containsKey(IsFollowerTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(IsFollowerTask.EXCEPTION_KEY);
                 observer.displayException(ex);
             }
         }

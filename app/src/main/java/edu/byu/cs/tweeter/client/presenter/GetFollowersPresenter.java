@@ -1,14 +1,9 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import android.widget.Toast;
-
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class GetFollowersPresenter {
@@ -20,11 +15,15 @@ public class GetFollowersPresenter {
         void displayMessage(String message);
 
         void addMoreItems(List<User> followers);
+
+        void showUser(User user);
     }
 
     private View view;
 
     private FollowService followService;
+    
+    private UserService userService;
 
     private User lastFollower;
 
@@ -35,6 +34,7 @@ public class GetFollowersPresenter {
     public GetFollowersPresenter(View view) {
         this.view = view;
         followService = new FollowService();
+        userService = new UserService();
     }
 
     public boolean hasMorePages() {
@@ -59,6 +59,10 @@ public class GetFollowersPresenter {
             view.setLoadingFooter(isLoading);
             followService.loadMoreFollowers(user, PAGE_SIZE, lastFollower, new GetFollowersObserver());
         }
+    }
+
+    public void getUser(String userAlias) {
+        userService.getUser(userAlias, new GetUserObserver());
     }
 
     private class GetFollowersObserver implements FollowService.Observer {
@@ -89,6 +93,19 @@ public class GetFollowersPresenter {
             lastFollower = (followers.size() > 0) ? followers.get(followers.size() - 1) : null;
             setHasMorePages(hasMorePages);
             view.addMoreItems(followers);
+        }
+    }
+    
+    private class GetUserObserver implements UserService.Observer {
+
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void showUser(User user) {
+            view.showUser(user);
         }
     }
 }

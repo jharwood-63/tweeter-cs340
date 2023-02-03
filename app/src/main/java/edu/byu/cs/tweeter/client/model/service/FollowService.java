@@ -13,9 +13,12 @@ import java.util.concurrent.Executors;
 
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
+import edu.byu.cs.tweeter.client.presenter.MainPresenter;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -29,13 +32,23 @@ public class FollowService {
         void addFollowees(List<User> followees, boolean hasMorePages);
     }
 
-    public interface MainObserver {
+    public interface IsFollowerObserver {
 
         void displayError(String message);
 
         void displayException(Exception ex);
 
         void isFollower(boolean isFollower);
+    }
+
+    public interface UpdateFollowStatusObserver {
+        void displayMessage(String message);
+
+        void updateSelectedUserFollowingAndFollowers();
+
+        void updateFollowButton(boolean value);
+
+        void setFollowButtonEnabled(boolean value);
     }
 
     public void getFollowees(User user, int pageSize, User lastFollowee, Observer observer) {
@@ -52,11 +65,29 @@ public class FollowService {
         executor.execute(getFollowersTask);
     }
 
-    public void isFollower(User selectedUser, MainObserver observer) {
+    public void isFollower(User selectedUser, IsFollowerObserver observer) {
         IsFollowerTask isFollowerTask = new IsFollowerTask(Cache.getInstance().getCurrUserAuthToken(),
                 Cache.getInstance().getCurrUser(), selectedUser, new IsFollowerHandler(observer));
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(isFollowerTask);
+    }
+
+    public void unfollow(User selectedUser, UpdateFollowStatusObserver observer) {
+        UnfollowTask unfollowTask = new UnfollowTask(Cache.getInstance().getCurrUserAuthToken(),
+                selectedUser, new UnfollowHandler(observer));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(unfollowTask);
+
+        observer.displayMessage("Removing " + selectedUser.getName() + "...");
+    }
+
+    public void follow(User selectedUser, UpdateFollowStatusObserver observer) {
+        FollowTask followTask = new FollowTask(Cache.getInstance().getCurrUserAuthToken(),
+                selectedUser, new FollowHandler(observer));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(followTask);
+
+        observer.displayMessage("Adding " + selectedUser.getName() + "...");
     }
 
     /**
@@ -118,9 +149,9 @@ public class FollowService {
     // IsFollowerHandler
     private class IsFollowerHandler extends Handler {
 
-        private MainObserver observer;
+        private IsFollowerObserver observer;
 
-        public IsFollowerHandler(MainObserver observer) {
+        public IsFollowerHandler(IsFollowerObserver observer) {
             super(Looper.getMainLooper());
             this.observer = observer;
         }
@@ -138,6 +169,62 @@ public class FollowService {
                 Exception ex = (Exception) msg.getData().getSerializable(IsFollowerTask.EXCEPTION_KEY);
                 observer.displayException(ex);
             }
+        }
+    }
+
+    // UnfollowHandler
+    private class UnfollowHandler extends Handler {
+
+        private UpdateFollowStatusObserver observer;
+
+        public UnfollowHandler(UpdateFollowStatusObserver observer) {
+            super(Looper.getMainLooper());
+            this.observer = observer;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(UnfollowTask.SUCCESS_KEY);
+            if (success) {
+                observer.updateSelectedUserFollowingAndFollowers();
+                observer.updateFollowButton(true);
+            } else if (msg.getData().containsKey(UnfollowTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(UnfollowTask.MESSAGE_KEY);
+                observer.displayMessage("Failed to unfollow: " + message);
+            } else if (msg.getData().containsKey(UnfollowTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(UnfollowTask.EXCEPTION_KEY);
+                observer.displayMessage("Failed to unfollow because of exception: " + ex.getMessage());
+            }
+
+            observer.setFollowButtonEnabled(true);
+        }
+    }
+
+    // FollowHandler
+    private class FollowHandler extends Handler {
+
+        private UpdateFollowStatusObserver observer;
+
+        public FollowHandler(UpdateFollowStatusObserver observer) {
+            super(Looper.getMainLooper());
+            this.observer = observer;
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            boolean success = msg.getData().getBoolean(FollowTask.SUCCESS_KEY);
+            if (success) {
+                observer.updateSelectedUserFollowingAndFollowers();
+                observer.updateFollowButton(false);
+            } else if (msg.getData().containsKey(FollowTask.MESSAGE_KEY)) {
+                String message = msg.getData().getString(FollowTask.MESSAGE_KEY);
+                observer.displayMessage("Failed to follow: " + message);
+            } else if (msg.getData().containsKey(FollowTask.EXCEPTION_KEY)) {
+                Exception ex = (Exception) msg.getData().getSerializable(FollowTask.EXCEPTION_KEY);
+                observer.displayMessage("Failed to follow because of exception: " + ex.getMessage());
+            }
+
+            observer.setFollowButtonEnabled(true);
         }
     }
 }

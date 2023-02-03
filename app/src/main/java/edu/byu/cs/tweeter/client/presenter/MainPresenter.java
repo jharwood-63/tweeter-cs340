@@ -8,7 +8,9 @@ import java.util.concurrent.Executors;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
 
@@ -17,6 +19,12 @@ public class MainPresenter {
         void displayMessage(String message);
 
         void isFollower(boolean isFollower);
+
+        void updateSelectedUserFollowingAndFollowers();
+
+        void updateFollowButton(boolean value);
+
+        void setFollowButtonEnabled(boolean value);
     }
 
     private View view;
@@ -32,7 +40,15 @@ public class MainPresenter {
         followService.isFollower(selectedUser, new IsFollowerObserver());
     }
 
-    private class IsFollowerObserver implements FollowService.MainObserver{
+    public void unfollow(User selectedUser) {
+        followService.unfollow(selectedUser, new UpdateFollowStatusObserver());
+    }
+
+    public void follow(User selectedUser) {
+        followService.follow(selectedUser, new UpdateFollowStatusObserver());
+    }
+
+    private class IsFollowerObserver implements FollowService.IsFollowerObserver{
 
         @Override
         public void displayError(String message) {
@@ -47,6 +63,29 @@ public class MainPresenter {
         @Override
         public void isFollower(boolean isFollower) {
             view.isFollower(isFollower);
+        }
+    }
+
+    private class UpdateFollowStatusObserver implements FollowService.UpdateFollowStatusObserver {
+
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void updateSelectedUserFollowingAndFollowers() {
+            view.updateSelectedUserFollowingAndFollowers();
+        }
+
+        @Override
+        public void updateFollowButton(boolean value) {
+            view.updateFollowButton(value);
+        }
+
+        @Override
+        public void setFollowButtonEnabled(boolean value) {
+            view.setFollowButtonEnabled(value);
         }
     }
 }

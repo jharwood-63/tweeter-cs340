@@ -8,8 +8,10 @@ import java.util.concurrent.Executors;
 import edu.byu.cs.tweeter.R;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
+import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.view.main.MainActivity;
 import edu.byu.cs.tweeter.model.domain.User;
@@ -25,15 +27,20 @@ public class MainPresenter {
         void updateFollowButton(boolean value);
 
         void setFollowButtonEnabled(boolean value);
+
+        void logoutUser();
     }
 
     private View view;
 
     private FollowService followService;
 
+    private UserService userService;
+
     public MainPresenter(View view) {
         this.view = view;
         followService = new FollowService();
+        userService = new UserService();
     }
 
     public void checkIsFollower(User selectedUser) {
@@ -46,6 +53,10 @@ public class MainPresenter {
 
     public void follow(User selectedUser) {
         followService.follow(selectedUser, new UpdateFollowStatusObserver());
+    }
+
+    public void logout() {
+        userService.logout(new LogoutObserver());
     }
 
     private class IsFollowerObserver implements FollowService.IsFollowerObserver{
@@ -86,6 +97,19 @@ public class MainPresenter {
         @Override
         public void setFollowButtonEnabled(boolean value) {
             view.setFollowButtonEnabled(value);
+        }
+    }
+
+    private class LogoutObserver implements UserService.LogoutObserver {
+
+        @Override
+        public void displayMessage(String message) {
+            view.displayMessage(message);
+        }
+
+        @Override
+        public void logoutUser() {
+            view.logoutUser();
         }
     }
 }

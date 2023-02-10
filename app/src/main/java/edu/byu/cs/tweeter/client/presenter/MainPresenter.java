@@ -171,23 +171,22 @@ public class MainPresenter {
     private class UpdateFollowStatusObserver implements FollowService.UpdateFollowStatusObserver {
 
         @Override
-        public void displayMessage(String message) {
+        public void handleException(Exception ex) {
+            view.displayMessage("Failed to unfollow because of exception: " + ex.getMessage());
+            view.setFollowButtonEnabled(true);
+        }
+
+        @Override
+        public void handleFailure(String message) {
             view.displayMessage(message);
+            view.setFollowButtonEnabled(true);
         }
 
         @Override
-        public void updateSelectedUserFollowingAndFollowers() {
+        public void handleSuccess() {
             view.updateSelectedUserFollowingAndFollowers();
-        }
-
-        @Override
-        public void updateFollowButton(boolean value) {
-            view.updateFollowButton(value);
-        }
-
-        @Override
-        public void setFollowButtonEnabled(boolean value) {
-            view.setFollowButtonEnabled(value);
+            view.updateFollowButton(false);
+            view.setFollowButtonEnabled(true);
         }
     }
 

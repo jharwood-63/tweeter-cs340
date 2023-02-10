@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
             }
         });
 
+        presenter = new MainPresenter(this);
+
         updateSelectedUserFollowingAndFollowers();
 
         TextView userName = findViewById(R.id.userName);
@@ -85,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
         followerCount.setText(getString(R.string.followerCount, "..."));
 
         followButton = findViewById(R.id.followButton);
-
-        presenter = new MainPresenter(this);
 
         if (selectedUser.compareTo(Cache.getInstance().getCurrUser()) == 0) {
             followButton.setVisibility(View.GONE);

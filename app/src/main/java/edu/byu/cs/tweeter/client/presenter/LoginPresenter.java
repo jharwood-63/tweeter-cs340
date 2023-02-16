@@ -1,26 +1,14 @@
 package edu.byu.cs.tweeter.client.presenter;
 
 import edu.byu.cs.tweeter.client.model.service.UserService;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.AuthenticateNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class LoginPresenter {
-    public interface View {
-        void setErrorView(String message);
-
-        void createToast(String message);
-
-        void displayMessage(String message);
-
-        void startMainActivity(User loggedInUser, String message);
-    }
-
-    private View view;
-
-    private UserService userService;
-
-    public LoginPresenter(View view) {
+public class LoginPresenter extends AuthenticatePresenter implements AuthenticateNotificationObserver {
+    private AuthenticateView view;
+    
+    public LoginPresenter(AuthenticateView view) {
         this.view = view;
-        this.userService = new UserService();
     }
 
     public void login(String alias, String password) {
@@ -30,7 +18,7 @@ public class LoginPresenter {
 
             view.createToast("Logging In ...");
 
-            userService.login(alias, password, new LoginObserver());
+            getUserService().login(alias, password, this);
         } catch (Exception e) {
             view.setErrorView(e.getMessage());
         }
@@ -48,16 +36,18 @@ public class LoginPresenter {
         }
     }
 
-    private class LoginObserver implements UserService.LoginObserver {
+    @Override
+    public void handleFailure(String message) {
+        view.displayMessage("Failed to login: " + message);
+    }
 
-        @Override
-        public void displayMessage(String message) {
-            view.displayMessage(message);
-        }
+    @Override
+    public void handleException(Exception ex) {
+        view.displayMessage("Failed to login because of exception: " + ex.getMessage());
+    }
 
-        @Override
-        public void startMainActivity(User loggedInUser, String message) {
-            view.startMainActivity(loggedInUser, message);
-        }
+    @Override
+    public void handleSuccess(User loggedInUser, String message) {
+        view.startMainActivity(loggedInUser, message);
     }
 }

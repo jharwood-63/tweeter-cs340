@@ -82,7 +82,7 @@ public abstract class PagedPresenter<T> extends Presenter implements PagedNotifi
     public void handleSuccess(List<T> items, boolean hasMoreItems) {
         setLoadingFooter(false);
         lastItem = (items.size() > 0) ? items.get(items.size() - 1) : null;
-        setHasMorePages(hasMorePages);
+        setHasMorePages(hasMoreItems);
         getPagedView().addMoreItems(items);
     }
 

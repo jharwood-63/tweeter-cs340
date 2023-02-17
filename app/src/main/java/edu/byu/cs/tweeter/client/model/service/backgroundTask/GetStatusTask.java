@@ -17,6 +17,6 @@ public class GetStatusTask extends PagedStatusTask {
 
     @Override
     protected Pair<List<Status>, Boolean> getItems() {
-        return null;
+        return getFakeData().getPageOfStatus(getLastItem(), getLimit());
     }
 }

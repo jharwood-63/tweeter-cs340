@@ -35,15 +35,14 @@ public class FollowService extends Service {
         runTask(followTask);
     }
 
-    public void updateFollowersCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer) {
+    public void updateCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer) {
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(),
                 selectedUser, new CountNotificationHandler(observer));
-        runTask(followersCountTask);
-    }
 
-    public void updateFollowingCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer) {
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(Cache.getInstance().getCurrUserAuthToken(),
                 selectedUser, new CountNotificationHandler(observer));
+
+        runTask(followersCountTask);
         runTask(followingCountTask);
     }
 

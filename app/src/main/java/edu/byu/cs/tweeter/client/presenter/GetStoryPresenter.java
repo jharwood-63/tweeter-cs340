@@ -13,7 +13,7 @@ public class GetStoryPresenter extends PagedStatusPresenter {
     }
 
     @Override
-    public String getFailurePrefix() {
+    public String getMessagePrefix() {
         return "Failed to get story: ";
     }
 }

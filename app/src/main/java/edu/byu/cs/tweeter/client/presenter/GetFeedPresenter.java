@@ -13,7 +13,7 @@ public class GetFeedPresenter extends PagedStatusPresenter {
     }
 
     @Override
-    public String getFailurePrefix() {
+    public String getMessagePrefix() {
         return "Failed to get feed: ";
     }
 }

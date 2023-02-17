@@ -18,12 +18,10 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNot
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class MainPresenter {
+public class MainPresenter extends Presenter {
     private static final String LOG_TAG = "MainActivity";
 
-    public interface View {
-        void displayMessage(String message);
-
+    public interface MainView extends PresenterView {
         void isFollower(boolean isFollower);
 
         void updateSelectedUserFollowingAndFollowers();
@@ -40,52 +38,59 @@ public class MainPresenter {
 
         void displayFollowingCount(int count);
     }
-
-    private View view;
-
+    
     private FollowService followService;
 
     private UserService userService;
 
     private StatusService statusService;
 
-    public MainPresenter(View view) {
-        this.view = view;
+    public MainPresenter(MainView view) {
+        super(view);
         followService = new FollowService();
         userService = new UserService();
         statusService = new StatusService();
     }
+    
+    private MainView getMainView() {
+        return ((MainView) getView());
+    }
+
+    @Override
+    protected String getMessagePrefix() {return null;}
+
+    @Override
+    protected String getExceptionPrefix() {return null;}
 
     public void checkIsFollower(User selectedUser) {
-        followService.isFollower(selectedUser, new IsFollowerObserver());
+        followService.isFollower(selectedUser, new IsFollowerObserver(null));
     }
 
     public void unfollow(User selectedUser) {
-        view.displayMessage("Removing " + selectedUser.getName() + "...");
+        getMainView().displayMessage("Removing " + selectedUser.getName() + "...");
         followService.unfollow(selectedUser, new UpdateFollowStatusObserver());
     }
 
     public void follow(User selectedUser) {
-        view.displayMessage("Adding " + selectedUser.getName() + "...");
+        getMainView().displayMessage("Adding " + selectedUser.getName() + "...");
         followService.follow(selectedUser, new UpdateFollowStatusObserver());
     }
 
     public void updateFollowingAndFollowers(User selectedUser) {
-        followService.updateFollowersCount(selectedUser, new UpdateCountObserver());
-        followService.updateFollowingCount(selectedUser, new UpdateCountObserver());
+        followService.updateCount(selectedUser, new UpdateCountObserver(null));
     }
 
     public void logout() {
-        userService.logout(new LogoutObserver());
+        userService.logout(new LogoutObserver(null));
     }
 
     public void postStatus(String post) {
         try {
             Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
-            statusService.postStatus(newStatus, new PostObserver());
+            statusService.postStatus(newStatus, new PostObserver(null));
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
-            view.displayMessage("Failed to post the status because of exception: " + ex.getMessage());
+            getMainView().displayMessage("Failed to post the status because of exception: " + ex.getMessage());
         }
     }
 
@@ -155,100 +160,118 @@ public class MainPresenter {
     }
 
     // Observers
-    private class IsFollowerObserver implements AuthenticatedNotificationObserver<Boolean> {
+    private class UpdateFollowStatusObserver implements SimpleNotificationObserver {
 
-        @Override
-        public void handleFailure(String message) {
-            view.displayMessage(message);
+        private void unsuccessfulTaskCompletion(String message) {
+            getMainView().displayMessage(message);
+            getMainView().setFollowButtonEnabled(true);
         }
 
         @Override
         public void handleException(Exception ex) {
-            view.displayMessage("Failed to determine following relationship because of exception: " + ex.getMessage());
+            unsuccessfulTaskCompletion("Failed to unfollow because of exception: " + ex.getMessage());
+        }
+
+        @Override
+        public void handleFailure(String message) {
+            unsuccessfulTaskCompletion(message);
+        }
+
+        @Override
+        public void handleSuccess() {
+            getMainView().updateSelectedUserFollowingAndFollowers();
+            getMainView().updateFollowButton(false);
+            getMainView().setFollowButtonEnabled(true);
+        }
+    }
+
+    private class IsFollowerObserver extends Presenter implements AuthenticatedNotificationObserver<Boolean> {
+
+        public IsFollowerObserver(PresenterView view) {
+            super(view);
+        }
+
+        @Override
+        protected String getMessagePrefix() {
+            return "Failed to determine following relationship: ";
+        }
+
+        @Override
+        protected String getExceptionPrefix() {
+            return "Failed to determine following relationship because of exception: ";
         }
 
         @Override
         public void handleSuccess(Boolean isFollower) {
-            view.isFollower(isFollower);
+            getMainView().isFollower(isFollower);
         }
     }
 
-    private class UpdateFollowStatusObserver implements SimpleNotificationObserver {
+    private class UpdateCountObserver extends Presenter implements AuthenticatedNotificationObserver<Integer> {
 
-        @Override
-        public void handleException(Exception ex) {
-            view.displayMessage("Failed to unfollow because of exception: " + ex.getMessage());
-            view.setFollowButtonEnabled(true);
+        public UpdateCountObserver(PresenterView view) {
+            super(view);
         }
 
         @Override
-        public void handleFailure(String message) {
-            view.displayMessage(message);
-            view.setFollowButtonEnabled(true);
+        protected String getMessagePrefix() {
+            return "Failed to get followers count: ";
         }
 
         @Override
-        public void handleSuccess() {
-            view.updateSelectedUserFollowingAndFollowers();
-            view.updateFollowButton(false);
-            view.setFollowButtonEnabled(true);
-        }
-    }
-
-    private class UpdateCountObserver implements AuthenticatedNotificationObserver<Integer> {
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayMessage(message);
-        }
-
-        @Override
-        public void handleException(Exception ex) {
-            view.displayMessage("Failed to get followers count because of exception: " + ex.getMessage());
+        protected String getExceptionPrefix() {
+            return "Failed to get followers count because of exception: ";
         }
 
         @Override
         public void handleSuccess(Integer count) {
-            view.displayFollowerCount(count);
-            view.displayFollowingCount(count);
+            getMainView().displayFollowerCount(count);
+            getMainView().displayFollowingCount(count);
         }
     }
 
-    private class LogoutObserver implements SimpleNotificationObserver {
+    private class LogoutObserver extends Presenter implements SimpleNotificationObserver {
 
-        @Override
-        public void handleFailure(String message) {
-            view.displayMessage("Failed to logout: " + message);
+        public LogoutObserver(PresenterView view) {
+            super(view);
         }
 
         @Override
-        public void handleException(Exception ex) {
-            view.displayMessage("Failed to logout because of exception: " + ex.getMessage());
-        }
-
-
-        @Override
-        public void handleSuccess() {
-            view.logoutUser();
-        }
-    }
-
-    private class PostObserver implements SimpleNotificationObserver {
-
-        @Override
-        public void handleFailure(String message) {
-            view.displayMessage("Failed to post status: " + message);
+        protected String getMessagePrefix() {
+            return "Failed to logout: ";
         }
 
         @Override
-        public void handleException(Exception ex) {
-            view.displayMessage("Failed to post status because of exception: " + ex.getMessage());
+        protected String getExceptionPrefix() {
+            return "Failed to logout because of exception: ";
         }
 
         @Override
         public void handleSuccess() {
-            view.cancelPostToast();
-            view.displayMessage("Successfully Posted!");
+            getMainView().logoutUser();
+        }
+    }
+
+    private class PostObserver extends Presenter implements SimpleNotificationObserver {
+
+        public PostObserver(PresenterView view) {
+            super(view);
+        }
+
+        @Override
+        protected String getMessagePrefix() {
+            return "Failed to post status: ";
+        }
+
+        @Override
+        protected String getExceptionPrefix() {
+            return "Failed to post status because of exception: ";
+        }
+
+        @Override
+        public void handleSuccess() {
+            getMainView().cancelPostToast();
+            getMainView().displayMessage("Successfully Posted!");
         }
     }
 }

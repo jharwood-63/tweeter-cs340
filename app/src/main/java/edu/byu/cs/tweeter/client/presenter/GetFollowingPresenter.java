@@ -13,7 +13,7 @@ public class GetFollowingPresenter extends PagedUserPresenter {
     }
 
     @Override
-    protected String getFailurePrefix() {
+    protected String getMessagePrefix() {
         return "Failed to get following: ";
     }
 }

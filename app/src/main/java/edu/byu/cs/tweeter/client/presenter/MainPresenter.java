@@ -49,7 +49,14 @@ public class MainPresenter extends Presenter {
         super(view);
         followService = new FollowService();
         userService = new UserService();
-        statusService = new StatusService();
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+
+        return statusService;
     }
     
     private MainView getMainView() {
@@ -87,7 +94,7 @@ public class MainPresenter extends Presenter {
     public void postStatus(String post) {
         try {
             Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
-            statusService.postStatus(newStatus, new PostObserver(null));
+            getStatusService().postStatus(newStatus, new PostObserver(null));
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             getMainView().displayMessage("Failed to post the status because of exception: " + ex.getMessage());

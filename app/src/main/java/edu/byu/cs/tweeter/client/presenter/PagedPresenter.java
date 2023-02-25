@@ -66,7 +66,7 @@ public abstract class PagedPresenter<T> extends Presenter implements PagedNotifi
 
     public void getUser(String userAlias) {
         getView().displayMessage("Getting user's profile...");
-        getUserService().getUser(userAlias, new GetUserObserver(null));
+        getUserService().getUser(userAlias, new GetUserObserver());
     }
 
     public void loadMoreItems(User user) {
@@ -102,11 +102,7 @@ public abstract class PagedPresenter<T> extends Presenter implements PagedNotifi
 
     protected abstract String getExceptionPrefix();
 
-    private class GetUserObserver extends Presenter implements AuthenticatedNotificationObserver<User> {
-        public GetUserObserver(PresenterView view) {
-            super(view);
-        }
-
+    private class GetUserObserver extends PresenterObserver implements AuthenticatedNotificationObserver<User> {
         @Override
         protected String getMessagePrefix() {
             return "Failed to get user's profile: ";

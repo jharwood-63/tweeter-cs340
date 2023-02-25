@@ -7,7 +7,7 @@ import java.util.Base64;
 
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.AuthenticateNotificationObserver;
 
-public class RegisterPresenter extends AuthenticatePresenter implements AuthenticateNotificationObserver {
+public class RegisterPresenter extends AuthenticatePresenter {
     public interface RegisterView extends AuthenticateView {
         boolean checkImage();
 
@@ -36,7 +36,7 @@ public class RegisterPresenter extends AuthenticatePresenter implements Authenti
             // Intentionally, Use the java Base64 encoder so it is compatible with M4.
             String imageBytesBase64 = Base64.getEncoder().encodeToString(imageBytes);
 
-            getUserService().register(firstName, lastName, alias, password, imageBytesBase64, this);
+            getUserService().register(firstName, lastName, alias, password, imageBytesBase64, new AuthenticateObserver());
         } catch (Exception e) {
             setErrorView(e.getMessage());
         }
@@ -56,15 +56,5 @@ public class RegisterPresenter extends AuthenticatePresenter implements Authenti
         if (!getRegisterView().checkImage()) {
             throw new IllegalArgumentException("Profile image must be uploaded.");
         }
-    }
-
-    @Override
-    protected String getMessagePrefix() {
-        return "Failed to register: ";
-    }
-
-    @Override
-    protected String getExceptionPrefix() {
-        return "Failed to register because of exception: ";
     }
 }

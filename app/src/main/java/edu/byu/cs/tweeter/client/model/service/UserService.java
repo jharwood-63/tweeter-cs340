@@ -26,7 +26,6 @@ public class UserService extends Service {
     }
 
     public void login(String alias, String password, AuthenticateNotificationObserver observer) {
-        // Send the login request.
         LoginTask loginTask = new LoginTask(alias, password, new AuthenticateNotificationHandler(observer));
         runTask(loginTask);
     }

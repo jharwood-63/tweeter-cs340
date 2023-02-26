@@ -7,7 +7,7 @@ public abstract class Presenter {
         void displayMessage(String message);
     }
 
-    private PresenterView view;
+    protected PresenterView view;
 
     public Presenter(PresenterView view) {
         this.view = view;

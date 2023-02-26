@@ -25,7 +25,7 @@ public abstract class AuthenticatePresenter extends Presenter {
     }
 
     public AuthenticateView getAuthenticateView() {
-        return ((AuthenticateView) getView());
+        return ((AuthenticateView) view);
     }
 
     protected void setErrorView(String message) {

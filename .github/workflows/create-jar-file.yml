@@ -1,0 +1,49 @@
+name: Build DEV Jars
+
+on: [push]
+
+jobs:
+  build_dev_jars:
+    name: Build DEV jars
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '17'
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Make a builds directory
+        run: mkdir builds
+      - name: Build with Gradle
+        run: |
+         ./gradlew jar
+          git_hash=$(git rev-parse --short "$GITHUB_SHA")
+          echo "git_hash=$git_hash" >> $GITHUB_ENV
+          echo "snapshotVersion=5.5-SNAPSHOT" >> $GITHUB_ENV
+          echo "artifactPath=$(pwd)/builds" >> $GITHUB_ENV
+      - name: Store PWD
+        run: |
+          echo "pwd=$(pwd)/" >> GITHUB_ENV
+      - name: Find files
+        id: pl
+        uses: Rishabh510/Path-lister-action@master
+        with:
+          path: ${{ env.artifactPath }}
+          type: ".jar"
+      - name: Output Results
+        run: |
+          echo "Found ${{ steps.pl.outputs.path_count }} file(s) with this extension:"
+          for i in ${{ steps.pl.outputs.paths }}; do
+          echo $i
+          done
+      - name: Upload Plugin jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: Plugin-${{ env.snapshotVersion }}-${{ env.git_hash }}.jar
+          path: ${{ env.artifactPath }}/Plugin-${{ env.snapshotVersion }}.jar

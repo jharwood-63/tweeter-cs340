@@ -8,12 +8,12 @@ public class GetStoryPresenter extends PagedStatusPresenter {
     }
 
     @Override
-    public String getExceptionPrefix() {
+    protected String getExceptionPrefix() {
         return "Failed to get story because of exception: ";
     }
 
     @Override
-    public String getMessagePrefix() {
+    protected String getMessagePrefix() {
         return "Failed to get story: ";
     }
 }

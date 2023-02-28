@@ -4,7 +4,7 @@ import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.AuthenticateNotificationObserver;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public abstract class AuthenticatePresenter extends Presenter implements AuthenticateNotificationObserver {
+public abstract class AuthenticatePresenter extends Presenter {
 
     public interface AuthenticateView extends PresenterView {
         void setErrorView(String message);
@@ -25,7 +25,7 @@ public abstract class AuthenticatePresenter extends Presenter implements Authent
     }
 
     public AuthenticateView getAuthenticateView() {
-        return ((AuthenticateView) getView());
+        return ((AuthenticateView) view);
     }
 
     protected void setErrorView(String message) {
@@ -55,8 +55,20 @@ public abstract class AuthenticatePresenter extends Presenter implements Authent
         }
     }
 
-    @Override
-    public void handleSuccess(User user, String message) {
-        getAuthenticateView().startMainActivity(user, message);
+    protected class AuthenticateObserver extends PresenterObserver implements AuthenticateNotificationObserver {
+        @Override
+        protected String getMessagePrefix() {
+            return "Failed to authenticate: ";
+        }
+
+        @Override
+        protected String getExceptionPrefix() {
+            return "Failed to authenticate because of exception: ";
+        }
+
+        @Override
+        public void handleSuccess(User user, String message) {
+            getAuthenticateView().startMainActivity(user, message);
+        }
     }
 }

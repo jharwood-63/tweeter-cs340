@@ -29,7 +29,7 @@ jobs:
           echo "artifactPath=$(pwd)/builds" >> $GITHUB_ENV
       - name: Store PWD
         run: |
-          echo "pwd=$(pwd)" >> GITHUB_ENV
+          echo "pwd=$(pwd)/" >> GITHUB_ENV
       - name: Find files
         id: pl
         uses: Rishabh510/Path-lister-action@master

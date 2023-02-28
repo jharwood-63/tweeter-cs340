@@ -28,7 +28,7 @@ jobs:
           echo "snapshotVersion=5.5-SNAPSHOT" >> $GITHUB_ENV
           echo "artifactPath=$(pwd)/builds" >> $GITHUB_ENV
       - name: View files in builds folder
-        run: ls
+        run: cd builds && ls
       - name: Upload Plugin jar
         uses: actions/upload-artifact@v3
         with:

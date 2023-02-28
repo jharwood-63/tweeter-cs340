@@ -18,6 +18,8 @@ jobs:
           java-version: '17'
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
+      - name: Make a builds directory
+        run: mkdir builds
       - name: Build with Gradle
         run: |
          ./gradlew jar

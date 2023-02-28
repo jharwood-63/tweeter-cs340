@@ -25,6 +25,8 @@ jobs:
           echo "git_hash=$git_hash" >> $GITHUB_ENV
           echo "snapshotVersion=5.5-SNAPSHOT" >> $GITHUB_ENV
           echo "artifactPath=$(pwd)/builds" >> $GITHUB_ENV
+      - name: View files in builds folder
+        run: cd ${{ env.artifactPath}} && ls
       - name: Upload Plugin jar
         uses: actions/upload-artifact@v3
         with:

@@ -27,8 +27,17 @@ jobs:
           echo "git_hash=$git_hash" >> $GITHUB_ENV
           echo "snapshotVersion=5.5-SNAPSHOT" >> $GITHUB_ENV
           echo "artifactPath=$(pwd)/builds" >> $GITHUB_ENV
-      - name: View files in builds folder
-        run: cd builds ; ls
+      - name: Find files
+        id: pl
+        uses: Rishabh510/Path-lister-action@master
+        with:
+          type: ".jar"
+      - name: Output Results
+        run: |
+          echo "Found ${{ steps.pl.outputs.path_count }} file(s) with this extension:"
+          for i in ${{ steps.pl.outputs.paths }}; do
+          echo $i
+          done
       - name: Upload Plugin jar
         uses: actions/upload-artifact@v3
         with:

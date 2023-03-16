@@ -13,8 +13,6 @@ import edu.byu.cs.tweeter.util.FakeData;
 public abstract class BackgroundTask implements Runnable {
     private static final String LOG_TAG = "BackgroundTask";
 
-//    protected static final String API_URL = "https://pn02zd4r40.execute-api.us-west-2.amazonaws.com/dev/";
-
     public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
     public static final String EXCEPTION_KEY = "exception";

@@ -7,10 +7,13 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
     private static final String LOG_TAG = "BackgroundTask";
+
+//    protected static final String API_URL = "https://pn02zd4r40.execute-api.us-west-2.amazonaws.com/dev/";
 
     public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
@@ -21,8 +24,15 @@ public abstract class BackgroundTask implements Runnable {
      */
     private final Handler messageHandler;
 
+    private final ServerFacade serverFacade;
+
     protected BackgroundTask(Handler messageHandler) {
         this.messageHandler = messageHandler;
+        serverFacade = new ServerFacade();
+    }
+
+    public ServerFacade getServerFacade() {
+        return serverFacade;
     }
 
     @Override

@@ -1,9 +1,16 @@
 package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
+import static java.lang.System.exit;
+
 import android.os.Handler;
+
+import java.io.IOException;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
 /**
@@ -16,9 +23,17 @@ public class LoginTask extends AuthenticateTask {
     }
 
     @Override
-    protected Pair<User, AuthToken> runAuthenticationTask() {
-        User loggedInUser = getFakeData().getFirstUser();
-        AuthToken authToken = getFakeData().getAuthToken();
-        return new Pair<>(loggedInUser, authToken);
+    protected Pair<User, AuthToken> runAuthenticationTask(String username, String password) throws Exception {
+        LoginRequest loginRequest = new LoginRequest(username, password);
+
+        try {
+            //FIXME: NVM I think it is now
+            LoginResponse loginResponse = getServerFacade().login(loginRequest, "login");
+            return new Pair<>(loginResponse.getUser(), loginResponse.getAuthToken());
+        }
+        catch (TweeterRemoteException | IOException e) {
+            System.out.println(e.getMessage());
+            throw new Exception("Exception caught while logging in");
+        }
     }
 }

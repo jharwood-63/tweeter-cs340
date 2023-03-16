@@ -26,6 +26,12 @@ public class FollowDAO {
         return getDummyFollowees().size();
     }
 
+    public Integer getFollowersCount(User user) {
+        // TODO: uses the dummy data.  Replace with a real implementation.
+        assert user != null;
+        return getFakeData().getFakeUsers().size();
+    }
+
     /**
      * Gets the users from the database that the user specified in the request is following. Uses
      * information in the request object to limit the number of followees returned and to return the

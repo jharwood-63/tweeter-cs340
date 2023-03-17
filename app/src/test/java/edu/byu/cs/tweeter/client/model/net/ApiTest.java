@@ -5,15 +5,22 @@ import android.os.Handler;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.AuthenticateNotificationHandler;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class ApiTest {
@@ -62,5 +69,21 @@ public class ApiTest {
     public void testIsFollower() {
         IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, lastItem, targetUser, null);
         isFollowerTask.run();
+    }
+
+    @Test
+    public void testPostStatus() {
+        List<String> urls = new ArrayList<>(Arrays.asList("first url", "second url"));
+        List<String> mentions = new ArrayList<>(Arrays.asList("first mention", "second mention"));
+        Status status = new Status("test post", targetUser, "timestamp", urls, mentions);
+        PostStatusTask postStatusTask = new PostStatusTask(authToken, status, null);
+
+        postStatusTask.run();
+    }
+
+    @Test
+    public void testGetUser() {
+        GetUserTask getUserTask = new GetUserTask(authToken, "@allen", null);
+        getUserTask.run();
     }
 }

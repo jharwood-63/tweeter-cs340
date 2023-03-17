@@ -8,11 +8,9 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.util.Pair;
 
-public class GetFollowListTask extends PagedUserTask {
+public abstract class GetFollowListTask<T, U> extends PagedUserTask {
 
     public GetFollowListTask(AuthToken authToken, User targetUser, int limit, User lastItem, Handler messageHandler) {
         super(authToken, targetUser, limit, lastItem, messageHandler);
@@ -20,15 +18,23 @@ public class GetFollowListTask extends PagedUserTask {
 
     @Override
     protected Pair<List<User>, Boolean> getItems() throws Exception {
-        FollowingRequest followingRequest = new FollowingRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
+        T request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
 
         try {
-            FollowingResponse followingResponse = getServerFacade().getFollowees(followingRequest, "getfollowing");
-            return new Pair<>(followingResponse.getFollowees(), followingResponse.getHasMorePages());
+            U response = getFollowList(request);
+            return new Pair<>(getList(response), getHasMorePages(response));
         }
         catch (TweeterRemoteException | IOException e) {
             System.out.println(e.getMessage());
             throw new Exception("Exception caught while getting following");
         }
     }
+
+    protected abstract Boolean getHasMorePages(U response);
+
+    protected abstract List<User> getList(U response);
+
+    protected abstract U getFollowList(T request) throws IOException, TweeterRemoteException;
+
+    protected abstract T getRequest(String token, String userAlias, int limit, String lastAlias);
 }

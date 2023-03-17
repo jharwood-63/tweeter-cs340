@@ -3,12 +3,14 @@ package edu.byu.cs.tweeter.server.service;
 import java.util.Random;
 
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
-import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowResponse;
-import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
@@ -28,13 +30,22 @@ public class FollowService {
      * @param request contains the data required to fulfill the request.
      * @return the followees.
      */
-    public FollowingResponse getFollowees(FollowingRequest request) {
+    public GetFollowingResponse getFollowees(GetFollowingRequest request) {
         if(request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
         return getFollowingDAO().getFollowees(request);
+    }
+
+    public GetFollowersResponse getFollowers(GetFollowersRequest request) {
+        if(request.getFolloweeAlias() == null || request.getFolloweeAlias().equals("")) {
+            throw new RuntimeException("[Bad Request] Request needs to have a followee alias");
+        } else if(request.getLimit() <= 0) {
+            throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
+        }
+        return getFollowingDAO().getFollowers(request);
     }
 
     /**

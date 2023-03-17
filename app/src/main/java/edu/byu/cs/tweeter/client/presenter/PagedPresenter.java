@@ -72,11 +72,11 @@ public abstract class PagedPresenter<T> extends Presenter implements PagedNotifi
     public void loadMoreItems(User user) {
         if (!isLoading) {   // This guard is important for avoiding a race condition in the scrolling code.
             setLoadingFooter(true);
-            getItem(user, PAGE_SIZE, this);
+            getItems(user, PAGE_SIZE, this);
         }
     }
 
-    protected abstract void getItem(User user, int pageSize, PagedNotificationObserver<T> getItemsObserver);
+    protected abstract void getItems(User user, int pageSize, PagedNotificationObserver<T> getItemsObserver);
 
     @Override
     public void handleSuccess(List<T> items, boolean hasMoreItems) {

@@ -2,9 +2,10 @@ package edu.byu.cs.tweeter.client.model.service;
 
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.CountNotificationHandler;
@@ -17,8 +18,14 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNot
 import edu.byu.cs.tweeter.model.domain.User;
 
 public class FollowService extends Service {
-    public void getFollowList(User user, int pageSize, User lastFollowee, PagedNotificationObserver<User> observer) {
-        GetFollowListTask getFollowingTask = new GetFollowListTask(Cache.getInstance().getCurrUserAuthToken(),
+    public void getFollowers(User user, int pageSize, User lastFollowee, PagedNotificationObserver<User> observer) {
+        GetFollowersTask getFollowersTask = new GetFollowersTask(Cache.getInstance().getCurrUserAuthToken(),
+                user, pageSize, lastFollowee, new PagedNotificationHandler<>(observer));
+        runTask(getFollowersTask);
+    }
+
+    public void getFollowing(User user, int pageSize, User lastFollowee, PagedNotificationObserver<User> observer) {
+        GetFollowingTask getFollowingTask = new GetFollowingTask(Cache.getInstance().getCurrUserAuthToken(),
                 user, pageSize, lastFollowee, new PagedNotificationHandler<>(observer));
         runTask(getFollowingTask);
     }

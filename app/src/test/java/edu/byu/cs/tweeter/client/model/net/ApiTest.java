@@ -13,6 +13,7 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
@@ -42,7 +43,7 @@ public class ApiTest {
 
     @Test
     public void getFollowingTest() {
-        GetFollowListTask followListTask = new GetFollowListTask(authToken, targetUser, 5, lastItem, null);
+        GetFollowListTask followListTask = new GetFollowingTask(authToken, targetUser, 5, lastItem, null);
         followListTask.run();
     }
 

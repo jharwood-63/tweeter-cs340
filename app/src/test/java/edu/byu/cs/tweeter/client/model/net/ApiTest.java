@@ -18,7 +18,9 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.LogoutTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.RegisterTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.AuthenticateNotificationHandler;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -97,5 +99,17 @@ public class ApiTest {
     public void testGetFeed() {
         GetFeedTask getFeedTask = new GetFeedTask(authToken, targetUser, 5, null, null);
         getFeedTask.run();
+    }
+
+    @Test
+    public void testLogout() {
+        LogoutTask logoutTask = new LogoutTask(authToken, null);
+        logoutTask.run();
+    }
+
+    @Test
+    public void testRegister() {
+        RegisterTask registerTask = new RegisterTask("first", "last", "@alias", "pass", "image", null);
+        registerTask.run();
     }
 }

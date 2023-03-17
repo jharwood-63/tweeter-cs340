@@ -17,23 +17,27 @@ import edu.byu.cs.tweeter.util.Pair;
  * Background task that logs in a user (i.e., starts a session).
  */
 public class LoginTask extends AuthenticateTask {
+    private LoginResponse response;
 
     public LoginTask(String username, String password, Handler messageHandler) {
         super(messageHandler, username, password);
     }
 
     @Override
-    protected Pair<User, AuthToken> runAuthenticationTask(String username, String password) throws Exception {
-        LoginRequest loginRequest = new LoginRequest(username, password);
+    protected Pair<User, AuthToken> runAuthenticationTask() throws Exception {
+        LoginRequest request = new LoginRequest(username, password);
+        response = getServerFacade().login(request, "login");
 
-        try {
-            //FIXME: NVM I think it is now
-            LoginResponse loginResponse = getServerFacade().login(loginRequest, "login");
-            return new Pair<>(loginResponse.getUser(), loginResponse.getAuthToken());
+        if (response.isSuccess()) {
+            return new Pair<>(response.getUser(), response.getAuthToken());
         }
-        catch (TweeterRemoteException | IOException e) {
-            System.out.println(e.getMessage());
-            throw new Exception("Exception caught while logging in");
+        else {
+            return null;
         }
+    }
+
+    @Override
+    protected String getFailedMessage() {
+        return response.getMessage();
     }
 }

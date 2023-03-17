@@ -10,7 +10,6 @@ import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.util.Pair;
 
 public abstract class AuthenticateTask extends BackgroundTask {
-
     public static final String USER_KEY = "user";
     public static final String AUTH_TOKEN_KEY = "auth-token";
 
@@ -38,17 +37,17 @@ public abstract class AuthenticateTask extends BackgroundTask {
     @Override
     protected final void runTask() {
         try {
-            Pair<User, AuthToken> loginResult = runAuthenticationTask(username, password);
+            Pair<User, AuthToken> result = runAuthenticationTask();
 
-            if (loginResult != null) {
-                authenticatedUser = loginResult.getFirst();
-                authToken = loginResult.getSecond();
+            if (result != null) {
+                authenticatedUser = result.getFirst();
+                authToken = result.getSecond();
 
                 // Call sendSuccessMessage if successful
                 sendSuccessMessage();
             }
             else {
-                sendFailedMessage("Unable to authenticate");
+                sendFailedMessage(getFailedMessage());
             }
         }
         catch (Exception e) {
@@ -56,7 +55,9 @@ public abstract class AuthenticateTask extends BackgroundTask {
         }
     }
 
-    protected abstract Pair<User, AuthToken> runAuthenticationTask(String username, String password) throws Exception;
+    protected abstract String getFailedMessage();
+
+    protected abstract Pair<User, AuthToken> runAuthenticationTask() throws Exception;
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {

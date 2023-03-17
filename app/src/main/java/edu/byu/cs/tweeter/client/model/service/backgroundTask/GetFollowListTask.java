@@ -20,7 +20,7 @@ public class GetFollowListTask extends PagedUserTask {
 
     @Override
     protected Pair<List<User>, Boolean> getItems() throws Exception {
-        FollowingRequest followingRequest = new FollowingRequest(authToken, targetUser.getAlias(), limit, lastItem.getAlias());
+        FollowingRequest followingRequest = new FollowingRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
 
         try {
             FollowingResponse followingResponse = getServerFacade().getFollowees(followingRequest, "getfollowing");

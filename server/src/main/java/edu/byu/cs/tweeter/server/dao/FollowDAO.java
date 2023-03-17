@@ -12,23 +12,15 @@ import edu.byu.cs.tweeter.util.FakeData;
  * A DAO for accessing 'following' data from the database.
  */
 public class FollowDAO {
-
-    /**
-     * Gets the count of users from the database that the user specified is following. The
-     * current implementation uses generated data and doesn't actually access a database.
-     *
-     * @param user the User whose count of how many following is desired.
-     * @return said count.
-     */
-    public int getFollowingCount(User user) {
+    public int getFollowingCount(String userAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
-        assert user != null;
+//        assert user != null;
         return getFakeData().getFakeUsers().size();
     }
 
-    public Integer getFollowersCount(User user) {
+    public Integer getFollowersCount(String userAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
-        assert user != null;
+//        assert user != null;
         return getFakeData().getFakeUsers().size();
     }
 

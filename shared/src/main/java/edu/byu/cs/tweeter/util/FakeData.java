@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
@@ -52,7 +53,7 @@ public class FakeData {
     /**
      * Generated auth token.
      */
-    private final AuthToken authToken = new AuthToken();
+    private final AuthToken authToken = new AuthToken(getToken());
 
     /**
      * List of generated users.
@@ -145,6 +146,10 @@ public class FakeData {
 
     public AuthToken getAuthToken() {
         return authToken;
+    }
+
+    private String getToken() {
+        return UUID.randomUUID().toString();
     }
 
     public User findUserByAlias(String alias) {

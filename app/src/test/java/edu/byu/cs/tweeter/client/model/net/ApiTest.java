@@ -9,6 +9,7 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.AuthenticateNotificationHandler;
@@ -18,6 +19,7 @@ import edu.byu.cs.tweeter.model.domain.User;
 public class ApiTest {
     private final AuthToken authToken = new AuthToken("12345", "3/15/23");
     private final User targetUser = new User("Jackson", "Harwood", "@alias", "imageurl");
+    private final User lastItem = new User("Alexis", "Harwood", "@another", "anotherurl");
 
     @Test
     public void unfollowTest() {
@@ -33,7 +35,6 @@ public class ApiTest {
 
     @Test
     public void getFollowingTest() {
-        User lastItem = new User("Alexis", "Harwood", "@another", "anotherurl");
         GetFollowListTask followListTask = new GetFollowListTask(authToken, targetUser, 5, lastItem, null);
         followListTask.run();
     }
@@ -55,5 +56,11 @@ public class ApiTest {
     public void testGetFollowingCount() {
         GetFollowingCountTask getFollowingCountTask = new GetFollowingCountTask(authToken, targetUser, null);
         getFollowingCountTask.run();
+    }
+
+    @Test
+    public void testIsFollower() {
+        IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, lastItem, targetUser, null);
+        isFollowerTask.run();
     }
 }

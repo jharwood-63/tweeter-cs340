@@ -3,19 +3,19 @@ package edu.byu.cs.tweeter.model.net.request;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 
 public class FollowRequest {
-    private AuthToken authToken;
+    private String token;
 
     public FollowRequest() {}
 
-    public FollowRequest(AuthToken authToken) {
-        this.authToken = authToken;
+    public FollowRequest(String token) {
+        this.token = token;
     }
 
-    public AuthToken getAuthToken() {
-        return authToken;
+    public String getToken() {
+        return token;
     }
 
-    public void setAuthToken(AuthToken authToken) {
-        this.authToken = authToken;
+    public void setToken(String token) {
+        this.token = token;
     }
 }

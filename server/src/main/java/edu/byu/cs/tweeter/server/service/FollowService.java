@@ -1,11 +1,15 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.Random;
+
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
@@ -25,7 +29,7 @@ public class FollowService {
      * @return the followees.
      */
     public FollowingResponse getFollowees(FollowingRequest request) {
-        if(request.getFollowerAlias() == null) {
+        if(request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
@@ -45,7 +49,7 @@ public class FollowService {
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request) {
-        if (request.getAuthToken() == null) {
+        if (request.getToken() == null || request.getToken().equals("")) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -53,7 +57,7 @@ public class FollowService {
     }
 
     public FollowResponse follow(FollowRequest request) {
-        if (request.getAuthToken() == null) {
+        if (request.getToken() == null || request.getToken().equals("")) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -61,28 +65,44 @@ public class FollowService {
     }
 
     public GetCountResponse getFollowersCount(GetCountRequest request) {
-        if (request.getUser() == null) {
+        if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getAuthToken() == null) {
+        else if (request.getToken() == null || request.getToken().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have an authtoken");
         }
 
-        int count = getFollowingDAO().getFollowersCount(request.getUser());
+        int count = getFollowingDAO().getFollowersCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
     }
 
     public GetCountResponse getFollowingCount(GetCountRequest request) {
-        if (request.getUser() == null) {
+        if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getAuthToken() == null) {
+        else if (request.getToken() == null || request.getToken().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have an authtoken");
         }
 
-        int count = getFollowingDAO().getFollowingCount(request.getUser());
+        int count = getFollowingDAO().getFollowingCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
+    }
+
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        if (request.getFolloweeAlias() == null || request.getFolloweeAlias().equals("")) {
+            throw new RuntimeException("[Bad Request] Request must have a followee");
+        }
+        else if (request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
+            throw new RuntimeException("[Bad Request] Request must have a follower");
+        }
+        else if (request.getToken() == null || request.getToken().equals("")) {
+            throw new RuntimeException("[Bad Request] Unauthenticated User");
+        }
+
+        boolean isFollower = new Random().nextInt() > 0;
+
+        return new IsFollowerResponse(isFollower);
     }
 }

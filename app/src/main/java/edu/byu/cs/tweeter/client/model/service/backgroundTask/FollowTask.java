@@ -23,7 +23,7 @@ public class FollowTask extends AuthenticatedTask {
     @Override
     protected void runTask() {
         try {
-            getServerFacade().follow(new FollowRequest(authToken), "follow");
+            getServerFacade().follow(new FollowRequest(authToken.getToken()), "follow");
             // We could do this from the presenter, without a task and handler, but we will
             // eventually access the database from here when we aren't using dummy data.
 

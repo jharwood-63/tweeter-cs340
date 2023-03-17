@@ -66,20 +66,28 @@ public abstract class PagedTask<T> extends AuthenticatedTask {
     @Override
     protected final void runTask() throws IOException {
         try {
-            // FIXME: DEAL WITH FAILURE
             Pair<List<T>, Boolean> pageOfItems = getItems();
 
-            items = pageOfItems.getFirst();
-            hasMorePages = pageOfItems.getSecond();
+            if (isSuccess()) {
+                items = pageOfItems.getFirst();
+                hasMorePages = pageOfItems.getSecond();
 
-            // Call sendSuccessMessage if successful
-            sendSuccessMessage();
-            // or call sendFailedMessage if not successful
-            // sendFailedMessage()
+                // Call sendSuccessMessage if successful
+                sendSuccessMessage();
+                // or call sendFailedMessage if not successful
+                // sendFailedMessage()
+            }
+            else {
+                sendFailedMessage(getFailedMessage());
+            }
         } catch (Exception e) {
             sendExceptionMessage(e);
         }
     }
+
+    protected abstract String getFailedMessage();
+
+    protected abstract boolean isSuccess();
 
     protected abstract Pair<List<T>, Boolean> getItems() throws Exception;
 

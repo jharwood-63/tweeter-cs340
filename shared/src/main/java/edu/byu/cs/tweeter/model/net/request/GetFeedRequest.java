@@ -8,7 +8,7 @@ public class GetFeedRequest {
     private int limit;
     private Status lastStatus;
 
-    public GetFeedRequest() {}
+    private GetFeedRequest() {}
 
     public GetFeedRequest(String token, String userAlias, int limit, Status lastStatus) {
         this.token = token;

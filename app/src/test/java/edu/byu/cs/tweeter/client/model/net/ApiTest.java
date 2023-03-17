@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFeedTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
@@ -26,8 +27,12 @@ import edu.byu.cs.tweeter.model.domain.User;
 
 public class ApiTest {
     private final AuthToken authToken = new AuthToken("12345", "3/15/23");
-    private final User targetUser = new User("Jackson", "Harwood", "@alias", "imageurl");
-    private final User lastItem = new User("Alexis", "Harwood", "@another", "anotherurl");
+
+    private static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
+    private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
+
+    private static final User targetUser = new User("Allen", "Anderson", "@allen", MALE_IMAGE_URL);
+    private static final User lastUser = new User("Amy", "Ames", "@amy", FEMALE_IMAGE_URL);
 
     @Test
     public void unfollowTest() {
@@ -43,7 +48,7 @@ public class ApiTest {
 
     @Test
     public void getFollowingTest() {
-        GetFollowListTask followListTask = new GetFollowingTask(authToken, targetUser, 5, lastItem, null);
+        GetFollowListTask followListTask = new GetFollowingTask(authToken, targetUser, 5, lastUser, null);
         followListTask.run();
     }
 
@@ -68,7 +73,7 @@ public class ApiTest {
 
     @Test
     public void testIsFollower() {
-        IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, lastItem, targetUser, null);
+        IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, lastUser, targetUser, null);
         isFollowerTask.run();
     }
 
@@ -86,5 +91,11 @@ public class ApiTest {
     public void testGetUser() {
         GetUserTask getUserTask = new GetUserTask(authToken, "@allen", null);
         getUserTask.run();
+    }
+
+    @Test
+    public void testGetFeed() {
+        GetFeedTask getFeedTask = new GetFeedTask(authToken, targetUser, 5, null, null);
+        getFeedTask.run();
     }
 }

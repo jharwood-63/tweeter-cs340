@@ -11,28 +11,39 @@ import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 
-public class GetFollowingTask extends GetFollowListTask<GetFollowingRequest, GetFollowingResponse> {
+public class GetFollowingTask extends GetFollowListTask<GetFollowingRequest> {
+    private GetFollowingResponse response;
     public GetFollowingTask(AuthToken authToken, User targetUser, int limit, User lastItem, Handler messageHandler) {
         super(authToken, targetUser, limit, lastItem, messageHandler);
     }
 
     @Override
-    protected Boolean getHasMorePages(GetFollowingResponse response) {
+    protected Boolean getHasMorePages() {
         return response.getHasMorePages();
     }
 
     @Override
-    protected List<User> getList(GetFollowingResponse response) {
+    protected List<User> getList() {
         return response.getFollowees();
     }
 
     @Override
-    protected GetFollowingResponse getFollowList(GetFollowingRequest request) throws IOException, TweeterRemoteException {
-        return getServerFacade().getFollowing(request, "getfollowing");
+    protected void setFollowResponse(GetFollowingRequest request) throws IOException, TweeterRemoteException {
+        response = getServerFacade().getFollowing(request, "getfollowing");
     }
 
     @Override
     protected GetFollowingRequest getRequest(String token, String userAlias, int limit, String lastAlias) {
         return new GetFollowingRequest(token, userAlias, limit, lastAlias);
+    }
+
+    @Override
+    protected String getFailedMessage() {
+        return null;
+    }
+
+    @Override
+    protected boolean isSuccess() {
+        return false;
     }
 }

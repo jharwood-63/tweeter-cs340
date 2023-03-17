@@ -5,6 +5,8 @@ import android.os.Handler;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
+import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 
 public abstract class GetCountTask extends AuthenticatedTask {
 
@@ -29,15 +31,23 @@ public abstract class GetCountTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() {
-        count = runCountTask();
-
-        // Call sendSuccessMessage if successful
-        sendSuccessMessage();
-        // or call sendFailedMessage if not successful
-        // sendFailedMessage()
+        GetCountRequest request = new GetCountRequest(authToken, targetUser);
+        try {
+            GetCountResponse response = getServerFacade().getCount(request, getUrlPath());
+            if (response.isSuccess()) {
+                count = response.getCount();
+                sendSuccessMessage();
+            }
+            else {
+                sendFailedMessage(response.getMessage());
+            }
+        }
+        catch (Exception e) {
+            sendExceptionMessage(e);
+        }
     }
 
-    protected abstract int runCountTask();
+    protected abstract String getUrlPath();
 
     @Override
     protected void loadSuccessBundle(Bundle msgBundle) {

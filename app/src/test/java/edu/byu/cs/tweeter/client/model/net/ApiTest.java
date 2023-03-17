@@ -7,6 +7,8 @@ import org.mockito.Mockito;
 
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowListTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.AuthenticateNotificationHandler;
@@ -41,5 +43,17 @@ public class ApiTest {
         Handler handlerMock = Mockito.mock(AuthenticateNotificationHandler.class);
         LoginTask loginTask = new LoginTask("@user", "pass", null);
         loginTask.run();
+    }
+
+    @Test
+    public void testGetFollowersCount() {
+        GetFollowersCountTask getFollowersCountTask = new GetFollowersCountTask(authToken, targetUser, null);
+        getFollowersCountTask.run();
+    }
+
+    @Test
+    public void testGetFollowingCount() {
+        GetFollowingCountTask getFollowingCountTask = new GetFollowingCountTask(authToken, targetUser, null);
+        getFollowingCountTask.run();
     }
 }

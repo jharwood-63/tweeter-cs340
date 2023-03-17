@@ -3,11 +3,11 @@ package edu.byu.cs.tweeter.server.service;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.FollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
-import edu.byu.cs.tweeter.model.net.request.getFollowersCountRequest;
+import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.FollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
-import edu.byu.cs.tweeter.model.net.response.getFollowersCountResponse;
+import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 import edu.byu.cs.tweeter.server.dao.FollowDAO;
 
 /**
@@ -60,7 +60,7 @@ public class FollowService {
         return new FollowResponse(true);
     }
 
-    public getFollowersCountResponse getFollowersCount(getFollowersCountRequest request) {
+    public GetCountResponse getFollowersCount(GetCountRequest request) {
         if (request.getUser() == null) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
@@ -70,6 +70,19 @@ public class FollowService {
 
         int count = getFollowingDAO().getFollowersCount(request.getUser());
 
-        return new getFollowersCountResponse(count, true);
+        return new GetCountResponse(count, true);
+    }
+
+    public GetCountResponse getFollowingCount(GetCountRequest request) {
+        if (request.getUser() == null) {
+            throw new RuntimeException("[Bad Request] Request must have a user");
+        }
+        else if (request.getAuthToken() == null) {
+            throw new RuntimeException("[Bad Request] Request must have an authtoken");
+        }
+
+        int count = getFollowingDAO().getFollowingCount(request.getUser());
+
+        return new GetCountResponse(count, true);
     }
 }

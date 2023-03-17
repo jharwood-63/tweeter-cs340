@@ -1,16 +1,16 @@
 package edu.byu.cs.tweeter.model.net.response;
 
-public class getFollowersCountResponse extends Response {
+public class GetCountResponse extends Response {
     private int count;
 
     // Success
-    public getFollowersCountResponse(int count, boolean success) {
+    public GetCountResponse(int count, boolean success) {
         super(success);
         this.count = count;
     }
 
     // Failure
-    public getFollowersCountResponse(boolean success, String message) {
+    public GetCountResponse(boolean success, String message) {
         super(success, message);
     }
 

@@ -2,10 +2,12 @@ package edu.byu.cs.tweeter.client.model.service.backgroundTask;
 
 import android.os.Handler;
 
+import java.io.IOException;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 
@@ -22,10 +24,8 @@ public class GetFollowersTask extends GetFollowListTask<GetFollowersRequest> {
     }
 
     @Override
-    protected void setFollowResponse(GetFollowersRequest request) {
-        //FIXME: IMPLEMENT THIS FUNCTION -> call serverFacade()
-        //set the response to the returned response
-        // response = getServerFacade().getFollowers()
+    protected void setFollowResponse(GetFollowersRequest request) throws IOException, TweeterRemoteException {
+        response = getServerFacade().getFollowers(request, "getfollowers");
     }
 
     @Override

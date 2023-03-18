@@ -18,7 +18,14 @@ public abstract class GetFollowListTask<T> extends PagedUserTask {
 
     @Override
     protected Pair<List<User>, Boolean> getItems() throws Exception {
-        T request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
+        T request;
+        if (lastItem != null) {
+            request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
+        }
+        else {
+            request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, null);
+        }
+
         setFollowResponse(request);
         return new Pair<>(getList(), getHasMorePages());
     }

@@ -39,11 +39,11 @@ public class GetFollowingTask extends GetFollowListTask<GetFollowingRequest> {
 
     @Override
     protected String getFailedMessage() {
-        return null;
+        return response.getMessage();
     }
 
     @Override
     protected boolean isSuccess() {
-        return false;
+        return response.isSuccess();
     }
 }

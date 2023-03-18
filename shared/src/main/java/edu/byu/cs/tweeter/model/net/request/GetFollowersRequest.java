@@ -6,7 +6,7 @@ public class GetFollowersRequest {
     private int limit;
     private String lastFollowerAlias;
 
-    public GetFollowersRequest() {}
+    private GetFollowersRequest() {}
 
     public GetFollowersRequest(String token, String followeeAlias, int limit, String lastFollowerAlias) {
         this.token = token;

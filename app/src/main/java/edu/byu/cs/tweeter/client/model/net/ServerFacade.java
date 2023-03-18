@@ -5,7 +5,9 @@ import java.io.IOException;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
+import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
@@ -16,7 +18,9 @@ import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
 import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
+import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
@@ -95,5 +99,13 @@ public class ServerFacade {
 
     public RegisterResponse register(RegisterRequest request, String urlPath) throws IOException, TweeterRemoteException {
         return clientCommunicator.doPost(urlPath, request, null, RegisterResponse.class);
+    }
+
+    public GetFollowersResponse getFollowers(GetFollowersRequest request, String urlPath) throws IOException, TweeterRemoteException {
+        return clientCommunicator.doPost(urlPath, request, null, GetFollowersResponse.class);
+    }
+
+    public GetStoryResponse getStory(GetStoryRequest request, String urlPath) throws IOException, TweeterRemoteException {
+        return clientCommunicator.doPost(urlPath, request, null, GetStoryResponse.class);
     }
 }

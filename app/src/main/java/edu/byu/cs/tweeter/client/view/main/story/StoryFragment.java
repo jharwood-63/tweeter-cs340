@@ -163,8 +163,8 @@ public class StoryFragment extends Fragment implements PagedPresenter.PagedView<
             Picasso.get().load(status.getUser().getImageUrl()).into(userImage);
             userAlias.setText(status.getUser().getAlias());
             userName.setText(status.getUser().getName());
-            datetime.setText(presenter.getFormattedDate(status.getTimestamp()));
-//            datetime.setText(status.getFormattedDate());
+//            datetime.setText(presenter.getFormattedDate(status.getTimestamp()));
+            datetime.setText(status.getTimestamp());
 
             // @mentions and urls clickable
             SpannableString spannableString = new SpannableString(status.getPost());

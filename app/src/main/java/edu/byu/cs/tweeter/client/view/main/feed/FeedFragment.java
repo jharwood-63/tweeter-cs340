@@ -163,7 +163,7 @@ public class FeedFragment extends Fragment implements PagedPresenter.PagedView<S
             Picasso.get().load(status.getUser().getImageUrl()).into(userImage);
             userAlias.setText(status.getUser().getAlias());
             userName.setText(status.getUser().getName());
-            datetime.setText(presenter.getFormattedDate(status.getTimestamp()));
+            datetime.setText(status.getTimestamp());
 //            datetime.setText(status.getFormattedDate());
 
             // @mentions and urls clickable

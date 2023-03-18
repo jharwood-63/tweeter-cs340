@@ -16,6 +16,7 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountT
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetStoryTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetUserTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.LoginTask;
@@ -110,7 +111,7 @@ public class ApiTest {
 
     @Test
     public void testRegister() {
-        RegisterTask registerTask = new RegisterTask("first", "last", "@alias", "pass", "image", null);
+        RegisterTask registerTask = new RegisterTask("", "last", "@alias", "pass", "image", null);
         registerTask.run();
     }
 
@@ -118,5 +119,11 @@ public class ApiTest {
     public void testGetFollowers() {
         GetFollowersTask getFollowersTask = new GetFollowersTask(authToken, targetUser, 5, lastUser, null);
         getFollowersTask.run();
+    }
+
+    @Test
+    public void testGetStory() {
+        GetStoryTask getStoryTask = new GetStoryTask(authToken, targetUser, 5, null, null);
+        getStoryTask.run();
     }
 }

@@ -1,6 +1,7 @@
 package edu.byu.cs.tweeter.model.domain;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -56,7 +57,8 @@ public class Status implements Serializable {
     }
 
 //    public String getFormattedDate(){
-//        return new SimpleDateFormat("E MMM d k:mm:ss z y", Locale.US).format(new Date(timestamp));
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d k:mm:ss z y", Locale.US);
+//        return dateFormat.format(DateFormat.parse(timestamp));
 //    }
     public String getPost() {
         return post;

@@ -8,7 +8,7 @@ public class GetStoryRequest {
     private int limit;
     private Status lastStatus;
 
-    public GetStoryRequest() {}
+    private GetStoryRequest() {}
 
     public GetStoryRequest(String token, String userAlias, int limit, Status lastStatus) {
         this.token = token;

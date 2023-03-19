@@ -7,7 +7,7 @@ public class GetCountRequest {
 
     private String userAlias;
 
-    public GetCountRequest() {}
+    private GetCountRequest() {}
 
     public GetCountRequest(String token, String userAlias) {
         this.token = token;

@@ -44,7 +44,7 @@ public class StatusService {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getUserAlias().equals("") || request.getUserAlias() == null) {
-            throw new RuntimeException("[Bad Request] Request must have a post");
+            throw new RuntimeException("[Bad Request] Request must have a user");
         }
         else if (request.getLimit() < 0) {
             throw new RuntimeException("[Bad Request] Request must have a limit greater than 0");

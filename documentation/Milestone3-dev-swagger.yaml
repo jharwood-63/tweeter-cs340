@@ -1,0 +1,807 @@
+---
+swagger: "2.0"
+info:
+  version: "2023-03-19T05:55:53Z"
+  title: "Milestone3"
+host: "pn02zd4r40.execute-api.us-west-2.amazonaws.com"
+basePath: "/dev"
+schemes:
+- "https"
+paths:
+  /follow:
+    post:
+      description: "Allows the user to follow another user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "followUnfollowRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/followUnfollowRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getfeed:
+    post:
+      description: "Gets a page of the current user's feed given the last status that\
+        \ was returned"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getFeedRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getFeedRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getfollowers:
+    post:
+      description: "Gets a list of users that follow the current user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getFollowersRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getFollowersRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getfollowerscount:
+    post:
+      description: "Gets the number of users that follow the current user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getCountRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getCountRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getfollowing:
+    post:
+      description: "Gets the list of users that the current user follows"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "followingRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/followingRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getfollowingcount:
+    post:
+      description: "Gets the number of users that the current user follows"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getCountRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getCountRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getstory:
+    post:
+      description: "Gets a page of the story for the current user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getStoryRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getStoryRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /getuser:
+    post:
+      description: "Gets the user information for a selected user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "getUserRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/getUserRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /isfollower:
+    post:
+      description: "Checks if a selected user follows the current user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "isFollowerRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/isFollowerRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /login:
+    post:
+      description: "Logs in the user given a username and password"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "loginRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/loginRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /logout:
+    post:
+      description: "Logs out the user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "logoutRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/logoutRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /poststatus:
+    post:
+      description: "Posts a status that was written by the current user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "postStatusRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/postStatusRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/postStatusRequest"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /register:
+    post:
+      description: "Creates a tweeter user and logs the user in"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "registerRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/registerRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+  /unfollow:
+    post:
+      description: "Unfollows a selected user"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "followUnfollowRequest"
+        required: true
+        schema:
+          $ref: "#/definitions/followUnfollowRequest"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+        "400":
+          description: "400 response"
+          schema:
+            $ref: "#/definitions/Error"
+        "500":
+          description: "500 response"
+          schema:
+            $ref: "#/definitions/Error"
+    options:
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+          headers:
+            Access-Control-Allow-Origin:
+              type: "string"
+            Access-Control-Allow-Methods:
+              type: "string"
+            Access-Control-Allow-Headers:
+              type: "string"
+definitions:
+  getCountRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      userAlias:
+        type: "string"
+    title: "getFollowersCountRequest"
+  postStatusRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      status:
+        type: "object"
+        properties:
+          post:
+            type: "string"
+          user:
+            type: "object"
+            properties:
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              alias:
+                type: "string"
+              imageUrl:
+                type: "string"
+          urls:
+            type: "array"
+            items:
+              type: "string"
+          mentions:
+            type: "array"
+            items:
+              type: "string"
+    title: "postStatusRequest"
+  loginRequest:
+    type: "object"
+    properties:
+      username:
+        type: "string"
+      password:
+        type: "string"
+    title: "loginRequestBody"
+  logoutRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+    title: "logoutRequest"
+  followingRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      followerAlias:
+        type: "string"
+      limit:
+        type: "integer"
+      lastFolloweeAlias:
+        type: "string"
+    title: "loginRequestBody"
+  isFollowerRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      followerAlias:
+        type: "string"
+      followeeAlias:
+        type: "string"
+    title: "isFollowerRequest"
+  Error:
+    type: "object"
+    properties:
+      errorMessage:
+        type: "string"
+      errorType:
+        type: "string"
+      stackTrace:
+        type: "array"
+        items:
+          type: "string"
+    title: "Error Schema"
+  getUserRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      alias:
+        type: "string"
+    title: "getUserRequest"
+  followUnfollowRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+    title: "followUnfollowRequest"
+  getFeedRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      userAlias:
+        type: "string"
+      limit:
+        type: "integer"
+      lastStatus:
+        type: "object"
+        properties:
+          post:
+            type: "string"
+          user:
+            type: "object"
+            properties:
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              alias:
+                type: "string"
+              imageUrl:
+                type: "string"
+          urls:
+            type: "array"
+            items:
+              type: "string"
+          mentions:
+            type: "array"
+            items:
+              type: "string"
+    title: "getFeedRequest"
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+  registerRequest:
+    type: "object"
+    properties:
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      username:
+        type: "string"
+      password:
+        type: "string"
+      imageUrl:
+        type: "string"
+    title: "registerRequest"
+  getStoryRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      userAlias:
+        type: "string"
+      limit:
+        type: "integer"
+      lastStatus:
+        type: "object"
+        properties:
+          post:
+            type: "string"
+          user:
+            type: "object"
+            properties:
+              firstName:
+                type: "string"
+              lastName:
+                type: "string"
+              alias:
+                type: "string"
+              imageUrl:
+                type: "string"
+          urls:
+            type: "array"
+            items:
+              type: "string"
+          mentions:
+            type: "array"
+            items:
+              type: "string"
+    title: "getStoryRequest"
+  getFollowersRequest:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      followeeAlias:
+        type: "string"
+      limit:
+        type: "integer"
+      lastFollowerAlias:
+        type: "string"
+    title: "getFollowersRequest"

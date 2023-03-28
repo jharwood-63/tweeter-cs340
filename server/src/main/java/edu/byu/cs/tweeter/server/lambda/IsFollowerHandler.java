@@ -7,10 +7,9 @@ import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.service.FollowService;
 
-public class IsFollowerHandler implements RequestHandler<IsFollowerRequest, IsFollowerResponse> {
+public class IsFollowerHandler extends BaseFollowHandler implements RequestHandler<IsFollowerRequest, IsFollowerResponse> {
     @Override
     public IsFollowerResponse handleRequest(IsFollowerRequest input, Context context) {
-        FollowService followService = new FollowService();
-        return followService.isFollower(input);
+        return getService().isFollower(input);
     }
 }

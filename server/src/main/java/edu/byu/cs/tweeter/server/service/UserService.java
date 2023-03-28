@@ -10,9 +10,20 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService {
+
+    private final IUserDAO userDAO;
+
+    public UserService(IUserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
+    protected IUserDAO getUserDAO() {
+        return userDAO;
+    }
 
     public RegisterResponse register(RegisterRequest request) {
         if(request.getUsername() == null || request.getUsername().equals("")){

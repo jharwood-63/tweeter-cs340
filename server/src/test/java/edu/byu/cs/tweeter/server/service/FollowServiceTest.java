@@ -11,7 +11,7 @@ import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
-import edu.byu.cs.tweeter.server.dao.FollowDAO;
+import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
 
 public class FollowServiceTest {
 
@@ -39,19 +39,19 @@ public class FollowServiceTest {
         // Setup a mock FollowDAO that will return known responses
         expectedResponse = new GetFollowingResponse(Arrays.asList(resultUser1, resultUser2, resultUser3), false);
         mockFollowDAO = Mockito.mock(FollowDAO.class);
-        Mockito.when(mockFollowDAO.getFollowees(request)).thenReturn(expectedResponse);
+        Mockito.when(mockFollowDAO.getFollowing(request)).thenReturn(expectedResponse);
 
         followServiceSpy = Mockito.spy(FollowService.class);
         Mockito.when(followServiceSpy.getFollowingDAO()).thenReturn(mockFollowDAO);
     }
 
     /**
-     * Verify that the {@link FollowService#getFollowees(GetFollowingRequest)}
+     * Verify that the {@link FollowService#getFollowing(GetFollowingRequest)}
      * method returns the same result as the {@link FollowDAO} class.
      */
     @Test
     public void testGetFollowees_validRequest_correctResponse() {
-        GetFollowingResponse response = followServiceSpy.getFollowees(request);
+        GetFollowingResponse response = followServiceSpy.getFollowing(request);
         Assertions.assertEquals(expectedResponse, response);
     }
 }

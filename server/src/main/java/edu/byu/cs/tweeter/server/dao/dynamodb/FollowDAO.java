@@ -1,26 +1,33 @@
-package edu.byu.cs.tweeter.server.dao;
+package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
+import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
+import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
+import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
+import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
 /**
  * A DAO for accessing 'following' data from the database.
  */
-public class FollowDAO {
+public class FollowDAO implements IFollowDAO {
     public int getFollowingCount(String userAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
 //        assert user != null;
         return getFakeData().getFakeUsers().size();
     }
 
-    public Integer getFollowersCount(String userAlias) {
+    public int getFollowersCount(String userAlias) {
         // TODO: uses the dummy data.  Replace with a real implementation.
 //        assert user != null;
         return getFakeData().getFakeUsers().size();
@@ -36,7 +43,7 @@ public class FollowDAO {
      *                other information required to satisfy the request.
      * @return the followees.
      */
-    public GetFollowingResponse getFollowees(GetFollowingRequest request) {
+    public GetFollowingResponse getFollowing(GetFollowingRequest request) {
         // TODO: Generates dummy data. Replace with a real implementation.
         assert request.getLimit() > 0;
         assert request.getFollowerAlias() != null;
@@ -84,6 +91,21 @@ public class FollowDAO {
         }
 
         return new GetFollowersResponse(responseFollowers, hasMorePages);
+    }
+
+    @Override
+    public UnfollowResponse unfollow(UnfollowRequest request) {
+        return null;
+    }
+
+    @Override
+    public FollowResponse follow(FollowRequest request) {
+        return null;
+    }
+
+    @Override
+    public IsFollowerResponse isFollower(IsFollowerRequest request) {
+        return null;
     }
 
     /**

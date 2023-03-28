@@ -7,10 +7,9 @@ import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.server.service.UserService;
 
-public class GetUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
+public class GetUserHandler extends BaseUserHandler implements RequestHandler<GetUserRequest, GetUserResponse> {
     @Override
     public GetUserResponse handleRequest(GetUserRequest input, Context context) {
-        UserService userService = new UserService();
-        return userService.getUser(input);
+        return getService().getUser(input);
     }
 }

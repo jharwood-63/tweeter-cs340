@@ -7,10 +7,9 @@ import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.server.service.StatusService;
 
-public class GetStoryHandler implements RequestHandler<GetStoryRequest, GetStoryResponse> {
+public class GetStoryHandler extends BaseStatusHandler implements RequestHandler<GetStoryRequest, GetStoryResponse> {
     @Override
     public GetStoryResponse handleRequest(GetStoryRequest input, Context context) {
-        StatusService statusService = new StatusService();
-        return statusService.getStory(input);
+        return getService().getStory(input);
     }
 }

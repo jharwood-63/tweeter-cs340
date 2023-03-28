@@ -9,10 +9,22 @@ import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
+import edu.byu.cs.tweeter.server.dao.IStatusDAO;
+import edu.byu.cs.tweeter.server.dao.dynamodb.StatusDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 import edu.byu.cs.tweeter.util.Pair;
 
 public class StatusService {
+    private final IStatusDAO statusDAO;
+
+    public StatusService(IStatusDAO statusDAO) {
+        this.statusDAO = statusDAO;
+    }
+
+    protected IStatusDAO getStatusDAO() {
+        return statusDAO;
+    }
+
     public PostStatusResponse postStatus(PostStatusRequest request) {
         if (request.getToken() == null || request.getToken().equals("")) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");

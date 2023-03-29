@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
 import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
@@ -53,7 +54,7 @@ public class ServerFacadeIntegrationTest {
 
     @Test
     public void getFollowersTest_Success() throws IOException, TweeterRemoteException {
-        GetFollowersRequest getFollowersRequest = new GetFollowersRequest("Test token", "@allen", 5, "@amy");
+        GetFollowersRequest getFollowersRequest = new GetFollowersRequest(new AuthToken(), "@allen", 5, "@amy");
 
         GetFollowersResponse actualResponse = serverFacade.getFollowers(getFollowersRequest, "getfollowers");
 
@@ -69,7 +70,7 @@ public class ServerFacadeIntegrationTest {
 
     @Test
     public void getFollowersTest_Exception() throws IOException, TweeterRemoteException {
-        GetFollowersRequest getFollowersRequestError = new GetFollowersRequest("Test token", "", 5, "@amy");
+        GetFollowersRequest getFollowersRequestError = new GetFollowersRequest(new AuthToken(), "", 5, "@amy");
 
         try {
             GetFollowersResponse response = serverFacade.getFollowers(getFollowersRequestError, "getfollowers");
@@ -84,7 +85,7 @@ public class ServerFacadeIntegrationTest {
 
     @Test
     public void getFollowersCountTest_Success() throws IOException, TweeterRemoteException {
-        GetCountRequest getCountRequest = new GetCountRequest("Test token", "@allen");
+        GetCountRequest getCountRequest = new GetCountRequest(new AuthToken(), "@allen");
 
         GetCountResponse actualResponse = serverFacade.getCount(getCountRequest, "getfollowerscount");
 
@@ -94,7 +95,7 @@ public class ServerFacadeIntegrationTest {
 
     @Test
     public void getFollowersCountTest_Exception() throws IOException, TweeterRemoteException {
-        GetCountRequest getCountRequestError = new GetCountRequest("Test token", "");
+        GetCountRequest getCountRequestError = new GetCountRequest(new AuthToken(), "");
 
         try {
             GetCountResponse response = serverFacade.getCount(getCountRequestError, "getfollowerscount");

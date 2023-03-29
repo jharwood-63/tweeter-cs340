@@ -1,26 +1,18 @@
 package edu.byu.cs.tweeter.model.net.request;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class IsFollowerRequest {
-    private String token;
+public class IsFollowerRequest extends AuthenticatedRequest {
     private String followerAlias; // This is the person you are checking
     private String followeeAlias; // This is you
 
-    public IsFollowerRequest() {}
+    private IsFollowerRequest() {}
 
-    public IsFollowerRequest(String token, String followerAlias, String followeeAlias) {
-        this.token = token;
+    public IsFollowerRequest(AuthToken authToken, String followerAlias, String followeeAlias) {
+        super(authToken);
         this.followerAlias = followerAlias;
         this.followeeAlias = followeeAlias;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public String getFollowerAlias() {

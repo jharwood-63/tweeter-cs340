@@ -21,7 +21,7 @@ public class GetStoryTask extends PagedStatusTask {
 
     @Override
     protected Pair<List<Status>, Boolean> getItems() throws IOException, TweeterRemoteException {
-        GetStoryRequest request = new GetStoryRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem);
+        GetStoryRequest request = new GetStoryRequest(authToken, targetUser.getAlias(), limit, lastItem);
         response = getServerFacade().getStory(request, "getstory");
 
         if (response.isSuccess()) {

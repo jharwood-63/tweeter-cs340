@@ -62,7 +62,7 @@ public class UserService {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getAlias() == null || request.getAlias().equals("")) {
@@ -79,7 +79,7 @@ public class UserService {
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 

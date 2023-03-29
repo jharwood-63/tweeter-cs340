@@ -1,16 +1,15 @@
 package edu.byu.cs.tweeter.model.net.request;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 
-public class GetCountRequest {
-    private String token;
-
+public class GetCountRequest extends AuthenticatedRequest {
     private String userAlias;
 
     private GetCountRequest() {}
 
-    public GetCountRequest(String token, String userAlias) {
-        this.token = token;
+    public GetCountRequest(AuthToken authToken, String userAlias) {
+        super(authToken);
         this.userAlias = userAlias;
     }
 
@@ -20,13 +19,5 @@ public class GetCountRequest {
 
     public void setUserAlias(String userAlias) {
         this.userAlias = userAlias;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 }

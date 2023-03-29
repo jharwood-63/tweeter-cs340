@@ -8,6 +8,7 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 
@@ -19,8 +20,8 @@ public class GetFollowersTask extends GetFollowListTask<GetFollowersRequest> {
     }
 
     @Override
-    protected GetFollowersRequest getRequest(String token, String userAlias, int limit, String lastAlias) {
-        return new GetFollowersRequest(token, userAlias, limit, lastAlias);
+    protected GetFollowersRequest getRequest(AuthToken authToken, String userAlias, int limit, String lastAlias) {
+        return new GetFollowersRequest(authToken, userAlias, limit, lastAlias);
     }
 
     @Override

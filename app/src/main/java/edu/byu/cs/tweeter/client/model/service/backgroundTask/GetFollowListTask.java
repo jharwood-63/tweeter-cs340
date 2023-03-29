@@ -8,6 +8,7 @@ import java.util.List;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.AuthenticatedRequest;
 import edu.byu.cs.tweeter.util.Pair;
 
 public abstract class GetFollowListTask<T> extends PagedUserTask {
@@ -20,10 +21,10 @@ public abstract class GetFollowListTask<T> extends PagedUserTask {
     protected Pair<List<User>, Boolean> getItems() throws Exception {
         T request;
         if (lastItem != null) {
-            request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem.getAlias());
+            request = getRequest(authToken, targetUser.getAlias(), limit, lastItem.getAlias());
         }
         else {
-            request = getRequest(authToken.getToken(), targetUser.getAlias(), limit, null);
+            request = getRequest(authToken, targetUser.getAlias(), limit, null);
         }
 
         setFollowResponse(request);
@@ -36,5 +37,5 @@ public abstract class GetFollowListTask<T> extends PagedUserTask {
 
     protected abstract void setFollowResponse(T request) throws IOException, TweeterRemoteException;
 
-    protected abstract T getRequest(String token, String userAlias, int limit, String lastAlias);
+    protected abstract T getRequest(AuthToken authToken, String userAlias, int limit, String lastAlias);
 }

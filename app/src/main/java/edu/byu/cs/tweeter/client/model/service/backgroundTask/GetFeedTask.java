@@ -22,7 +22,7 @@ public class GetFeedTask extends PagedStatusTask {
 
     @Override
     protected Pair<List<Status>, Boolean> getItems() throws IOException, TweeterRemoteException {
-        GetFeedRequest request = new GetFeedRequest(authToken.getToken(), targetUser.getAlias(), limit, lastItem);
+        GetFeedRequest request = new GetFeedRequest(authToken, targetUser.getAlias(), limit, lastItem);
         response = getServerFacade().getFeed(request, "getfeed");
         return new Pair<>(response.getFeedPage(), response.getHasMorePages());
     }

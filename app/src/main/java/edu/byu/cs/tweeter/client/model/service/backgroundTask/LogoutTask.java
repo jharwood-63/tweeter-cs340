@@ -18,7 +18,7 @@ public class LogoutTask extends AuthenticatedTask {
     @Override
     protected void runTask() {
         try {
-            LogoutRequest request = new LogoutRequest(authToken.getToken());
+            LogoutRequest request = new LogoutRequest(authToken);
             LogoutResponse response = getServerFacade().logout(request, "logout");
 
             if (response.isSuccess()) {

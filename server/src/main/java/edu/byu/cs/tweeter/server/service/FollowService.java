@@ -66,7 +66,7 @@ public class FollowService {
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -74,7 +74,7 @@ public class FollowService {
     }
 
     public FollowResponse follow(FollowRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -85,7 +85,7 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getToken() == null || request.getToken().equals("")) {
+        else if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Request must have an authtoken");
         }
 
@@ -98,7 +98,7 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getToken() == null || request.getToken().equals("")) {
+        else if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Request must have an authtoken");
         }
 
@@ -114,7 +114,7 @@ public class FollowService {
         else if (request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a follower");
         }
-        else if (request.getToken() == null || request.getToken().equals("")) {
+        else if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 

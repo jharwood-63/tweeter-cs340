@@ -30,7 +30,7 @@ public class GetUserTask extends AuthenticatedTask {
     @Override
     protected void runTask() {
         try {
-            GetUserRequest request = new GetUserRequest(authToken.getToken(), alias);
+            GetUserRequest request = new GetUserRequest(authToken, alias);
             GetUserResponse response = getServerFacade().getUser(request, "getuser");
 
             if (response.isSuccess()) {

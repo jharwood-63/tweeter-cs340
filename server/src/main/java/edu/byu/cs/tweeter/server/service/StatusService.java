@@ -26,7 +26,7 @@ public class StatusService {
     }
 
     public PostStatusResponse postStatus(PostStatusRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getStatus().getPost().equals("") || request.getStatus().getPost() == null) {
@@ -37,7 +37,7 @@ public class StatusService {
     }
 
     public GetFeedResponse getFeed(GetFeedRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getUserAlias().equals("") || request.getUserAlias() == null) {
@@ -52,7 +52,7 @@ public class StatusService {
     }
 
     public GetStoryResponse getStory(GetStoryRequest request) {
-        if (request.getToken() == null || request.getToken().equals("")) {
+        if (request.getAuthToken() == null) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getUserAlias().equals("") || request.getUserAlias() == null) {

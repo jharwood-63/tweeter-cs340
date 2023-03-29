@@ -1,12 +1,12 @@
 package edu.byu.cs.tweeter.model.net.request;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
+
 /**
  * Contains all the information needed to make a request to have the server return the next page of
  * followees for a specified follower.
  */
-public class GetFollowingRequest {
-
-    private String token;
+public class GetFollowingRequest extends AuthenticatedRequest {
     private String followerAlias;
     private int limit;
     private String lastFolloweeAlias;
@@ -25,29 +25,11 @@ public class GetFollowingRequest {
      *                     there was no previous request or if no followees were returned in the
      *                     previous request).
      */
-    public GetFollowingRequest(String token, String followerAlias, int limit, String lastFolloweeAlias) {
-        this.token = token;
+    public GetFollowingRequest(AuthToken authToken, String followerAlias, int limit, String lastFolloweeAlias) {
+        super(authToken);
         this.followerAlias = followerAlias;
         this.limit = limit;
         this.lastFolloweeAlias = lastFolloweeAlias;
-    }
-
-    /**
-     * Returns the auth token of the user who is making the request.
-     *
-     * @return the auth token.
-     */
-    public String getToken() {
-        return token;
-    }
-
-    /**
-     * Sets the auth token.
-     *
-     * @param token the auth token.
-     */
-    public void setToken(String token) {
-        this.token = token;
     }
 
     /**

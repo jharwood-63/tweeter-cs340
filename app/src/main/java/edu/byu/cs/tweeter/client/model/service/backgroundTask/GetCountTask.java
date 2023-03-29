@@ -31,7 +31,7 @@ public abstract class GetCountTask extends AuthenticatedTask {
 
     @Override
     protected void runTask() {
-        GetCountRequest request = new GetCountRequest(authToken.getToken(), targetUser.getAlias());
+        GetCountRequest request = new GetCountRequest(authToken, targetUser.getAlias());
         try {
             GetCountResponse response = getServerFacade().getCount(request, getUrlPath());
             if (response.isSuccess()) {

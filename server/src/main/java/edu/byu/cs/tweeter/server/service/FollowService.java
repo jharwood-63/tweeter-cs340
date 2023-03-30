@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.server.service;
 
 import java.util.Random;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
@@ -34,7 +35,7 @@ public class FollowService {
      *
      * @return the instance.
      */
-    protected IFollowDAO getFollowingDAO() {
+    protected IFollowDAO getFollowDAO() {
         return followDAO;
     }
 
@@ -50,10 +51,17 @@ public class FollowService {
     public GetFollowingResponse getFollowing(GetFollowingRequest request) {
         if(request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request needs to have a follower alias");
-        } else if(request.getLimit() <= 0) {
+        }
+        else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        return getFollowingDAO().getFollowing(request);
+        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+            throw new RuntimeException("[Bad Request] Unauthenticated User");
+        }
+
+        getFollowDAO().getFollowing(request);
+
+        return getFollowDAO().getFollowing(request);
     }
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
@@ -62,11 +70,11 @@ public class FollowService {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        return getFollowingDAO().getFollowers(request);
+        return getFollowDAO().getFollowers(request);
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request) {
-        if (request.getAuthToken() == null) {
+        if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -74,7 +82,7 @@ public class FollowService {
     }
 
     public FollowResponse follow(FollowRequest request) {
-        if (request.getAuthToken() == null) {
+        if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -85,11 +93,11 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getAuthToken() == null) {
-            throw new RuntimeException("[Bad Request] Request must have an authtoken");
+        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+            throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        int count = getFollowingDAO().getFollowersCount(request.getUserAlias());
+        int count = getFollowDAO().getFollowersCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
     }
@@ -98,11 +106,11 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (request.getAuthToken() == null) {
-            throw new RuntimeException("[Bad Request] Request must have an authtoken");
+        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+            throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        int count = getFollowingDAO().getFollowingCount(request.getUserAlias());
+        int count = getFollowDAO().getFollowingCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
     }
@@ -114,7 +122,7 @@ public class FollowService {
         else if (request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a follower");
         }
-        else if (request.getAuthToken() == null) {
+        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 

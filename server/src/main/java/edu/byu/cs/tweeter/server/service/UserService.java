@@ -42,6 +42,9 @@ public class UserService {
             throw new RuntimeException("[Bad Request] Missing an image");
         }
 
+        getUserDAO().register(request);
+
+        //FIXME: REMOVE THIS
         User registeredUser = getFakeData().getFirstUser();
         AuthToken authToken = getFakeData().getAuthToken();
 
@@ -62,7 +65,7 @@ public class UserService {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        if (request.getAuthToken() == null) {
+        if (!getUserDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getAlias() == null || request.getAlias().equals("")) {
@@ -79,9 +82,10 @@ public class UserService {
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        if (request.getAuthToken() == null) {
-            throw new RuntimeException("[Bad Request] Unauthenticated User");
-        }
+        // No need to authenticate the user if they are logging out right?
+//        if (!getUserDAO().authenticateRequest(request.getAuthToken())) {
+//            throw new RuntimeException("[Bad Request] Unauthenticated User");
+//        }
 
         return new LogoutResponse();
     }

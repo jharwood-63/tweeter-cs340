@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.server.dao.dynamodb;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
@@ -22,5 +23,10 @@ public class StatusDAO implements IStatusDAO {
     @Override
     public GetStoryResponse getStory(GetStoryRequest request) {
         return null;
+    }
+
+    @Override
+    public boolean authenticateRequest(AuthToken authToken) {
+        return false;
     }
 }

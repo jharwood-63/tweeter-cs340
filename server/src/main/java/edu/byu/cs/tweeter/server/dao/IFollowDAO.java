@@ -1,5 +1,6 @@
 package edu.byu.cs.tweeter.server.dao;
 
+import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
@@ -19,4 +20,5 @@ public interface IFollowDAO {
     UnfollowResponse unfollow(UnfollowRequest request);
     FollowResponse follow(FollowRequest request);
     IsFollowerResponse isFollower(IsFollowerRequest request);
+    boolean authenticateRequest(AuthToken authToken);
 }

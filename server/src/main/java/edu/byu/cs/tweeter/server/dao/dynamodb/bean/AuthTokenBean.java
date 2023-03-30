@@ -6,8 +6,7 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 @DynamoDbBean
 public class AuthTokenBean {
     private String token;
-    private String alias;
-    private long datetime;
+    private String datetime;
 
     @DynamoDbPartitionKey
     public String getToken() {
@@ -18,19 +17,11 @@ public class AuthTokenBean {
         this.token = token;
     }
 
-    public String getAlias() {
-        return alias;
-    }
-
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
-
-    public long getDatetime() {
+    public String getDatetime() {
         return datetime;
     }
 
-    public void setDatetime(long datetime) {
+    public void setDatetime(String datetime) {
         this.datetime = datetime;
     }
 }

@@ -5,7 +5,7 @@ public class PostStatusResponse extends Response {
         super(success);
     }
 
-    public PostStatusResponse(boolean success, String message) {
-        super(success, message);
+    public PostStatusResponse(String message) {
+        super(false, message);
     }
 }

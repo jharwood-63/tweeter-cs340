@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
@@ -40,6 +40,8 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
     private static final String FOLLOWS_PARTITION_KEY = "follow_handle";
     private static final String FOLLOWS_SORT_KEY = "followee_handle";
+
+    private static final int PAGE_SIZE = 5;
 
     private DynamoDbTable<FollowBean> followTable;
     private DynamoDbIndex<FollowBean> followIndex;
@@ -83,14 +85,12 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
      * @return the followees.
      */
     public GetFollowingResponse getFollowing(GetFollowingRequest request) {
-        DynamoDbIndex<FollowBean> index = getFollowIndex();
-
         QueryEnhancedRequest queryRequest = createPagedQueryRequest(request.getFollowerAlias(), request.getLimit(),
                 request.getLastFolloweeAlias(), FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
 
         GetFollowingResponse response = new GetFollowingResponse(new ArrayList<>(), false);
 
-        SdkIterable<Page<FollowBean>> sdkIterable = index.query(queryRequest);
+        SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
         PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
         pages.stream()
                 .limit(1)
@@ -111,14 +111,12 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
      */
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
-        DynamoDbTable<FollowBean> table = getFollowTable();
-
         QueryEnhancedRequest queryRequest = createPagedQueryRequest(request.getFolloweeAlias(), request.getLimit(),
                 request.getLastFollowerAlias(), FOLLOWS_PARTITION_KEY, FOLLOWS_SORT_KEY);
 
         GetFollowersResponse response = new GetFollowersResponse(new ArrayList<>(), false);
 
-        PageIterable<FollowBean> pages = table.query(queryRequest);
+        PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
         pages.stream()
                 .limit(1)
                 .forEach((Page<FollowBean> page) -> {
@@ -131,6 +129,34 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         }
 
         return response;
+    }
+
+    @Override
+    public List<User> getAllFollowers(String followeeAlias) {
+        boolean hasMorePages = true;
+        String lastFollowerAlias = null;
+        List<User> followers = new ArrayList<>();
+
+        while (hasMorePages) {
+            AtomicBoolean more = new AtomicBoolean(false);
+            QueryEnhancedRequest queryRequest = createPagedQueryRequest(followeeAlias, PAGE_SIZE,
+                    lastFollowerAlias, FOLLOWS_PARTITION_KEY, FOLLOWS_SORT_KEY);
+
+            PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
+            pages.stream()
+                    .limit(1)
+                    .forEach((Page<FollowBean> page) -> {
+                        more.set(page.lastEvaluatedKey() != null);
+                        page.items().forEach(followBean -> followers.add(followBean.convertFollowerToUser()));
+                    });
+
+            if (followers.size() > 0) {
+                lastFollowerAlias = followers.get(followers.size() - 1).getAlias();
+                hasMorePages = more.get();
+            }
+        }
+
+        return followers;
     }
 
     private QueryEnhancedRequest createPagedQueryRequest(String targetUserAlias, int pageSize, String lastUserAlias, String partitionKey, String sortKey) {
@@ -166,11 +192,6 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
     @Override
     public IsFollowerResponse isFollower(IsFollowerRequest request) {
         return null;
-    }
-
-    @Override
-    public boolean authenticateRequest(AuthToken authToken) {
-        return authenticateAuthToken(authToken);
     }
 
     /**

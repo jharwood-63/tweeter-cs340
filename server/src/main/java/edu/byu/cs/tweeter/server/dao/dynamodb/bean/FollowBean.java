@@ -75,13 +75,13 @@ public class FollowBean {
     }
 
     public User convertFollowerToUser() {
-        String [] name = parseName(this.getFollow_name());
-        return new User(name[0], name[1], this.getFollow_handle(), this.getFollow_image());
+        String [] name = parseName(this.getFollowee_name());
+        return new User(name[0], name[1], this.getFollowee_handle(), this.getFollowee_image());
     }
 
     public User convertFolloweeToUser() {
-        String [] name = parseName(this.getFollowee_name());
-        return new User(name[0], name[1], this.getFollowee_handle(), this.getFollowee_image());
+        String [] name = parseName(this.getFollow_name());
+        return new User(name[0], name[1], this.getFollow_handle(), this.getFollow_image());
     }
 
     @Override

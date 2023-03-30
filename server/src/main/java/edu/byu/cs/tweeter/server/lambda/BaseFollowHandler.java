@@ -4,14 +4,9 @@ import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.service.FollowService;
 
-public class BaseFollowHandler extends Handler<FollowService, IFollowDAO> {
+public class BaseFollowHandler extends Handler<FollowService> {
     @Override
-    protected IFollowDAO createDAO(DAOFactory factory) {
-        return factory.getFollowDAO();
-    }
-
-    @Override
-    protected FollowService createService(IFollowDAO followDAO) {
-        return new FollowService(followDAO);
+    protected FollowService createService() {
+        return new FollowService();
     }
 }

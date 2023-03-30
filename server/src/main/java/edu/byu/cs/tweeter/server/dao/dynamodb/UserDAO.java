@@ -45,23 +45,13 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     }
 
     @Override
-    public void login(LoginRequest request) {
+    public void verifyCredentials(LoginRequest request) {
 
     }
 
     @Override
     public void getUser(GetUserRequest request) {
 
-    }
-
-    @Override
-    public void logout(LogoutRequest request) {
-
-    }
-
-    @Override
-    public boolean authenticateRequest(AuthToken authToken) {
-        return false;
     }
 
     public String uploadImageToS3(String imageUrl, String userAlias) {

@@ -13,15 +13,15 @@ import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
-public class UserService {
+public class UserService extends Service {
 
-    private final IUserDAO userDAO;
-
-    public UserService(IUserDAO userDAO) {
-        this.userDAO = userDAO;
-    }
+    private IUserDAO userDAO;
 
     protected IUserDAO getUserDAO() {
+        if (userDAO == null) {
+            userDAO = getFactory().getUserDAO();
+        }
+
         return userDAO;
     }
 
@@ -65,7 +65,7 @@ public class UserService {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        if (!getUserDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getAlias() == null || request.getAlias().equals("")) {

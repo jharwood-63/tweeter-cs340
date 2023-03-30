@@ -15,27 +15,21 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
+import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
-public class FollowService {
-    private final IFollowDAO followDAO;
+public class FollowService extends Service {
+    private IFollowDAO followDAO;
 
-    public FollowService(IFollowDAO followDAO) {
-        this.followDAO = followDAO;
-    }
+    private IFollowDAO getFollowDAO() {
+        if (followDAO == null) {
+            followDAO = getFactory().getFollowDAO();
+        }
 
-    /**
-     * Returns an instance of {@link FollowDAO}. Allows mocking of the FollowDAO class
-     * for testing purposes. All usages of FollowDAO should get their FollowDAO
-     * instance from this method to allow for mocking of the instance.
-     *
-     * @return the instance.
-     */
-    protected IFollowDAO getFollowDAO() {
         return followDAO;
     }
 
@@ -55,7 +49,7 @@ public class FollowService {
         else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -74,7 +68,7 @@ public class FollowService {
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request) {
-        if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -82,7 +76,7 @@ public class FollowService {
     }
 
     public FollowResponse follow(FollowRequest request) {
-        if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -93,7 +87,7 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -106,7 +100,7 @@ public class FollowService {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -122,7 +116,7 @@ public class FollowService {
         else if (request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a follower");
         }
-        else if (!getFollowDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 

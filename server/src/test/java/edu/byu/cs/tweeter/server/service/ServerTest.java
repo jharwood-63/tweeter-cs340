@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.server.dao.dynamodb.AuthTokenDAO;
@@ -44,5 +45,20 @@ public class ServerTest {
 
         authTokenDAO.login(authToken);
         statusService.postStatus(request);
+    }
+
+    @Test
+    public void testGetFeed() {
+        AuthToken authToken = new AuthToken("This is a token", Long.toString(System.currentTimeMillis()));
+
+        User user = new User("Fred", "Flinstone", "imageUrl");
+        Status status = new Status("test post", user, Long.toString(System.currentTimeMillis()), new ArrayList<String>() {{
+            add("https://youtube.com");
+        }}, new ArrayList<String>() {{
+            add("@Dude1");
+        }});
+        GetFeedRequest request = new GetFeedRequest(authToken, "@Jackson", 5, null);
+        StatusService statusService = new StatusService();
+        statusService.getFeed(request);
     }
 }

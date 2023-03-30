@@ -7,7 +7,7 @@ import edu.byu.cs.tweeter.model.domain.Status;
 public class GetFeedResponse extends PagedResponse {
     private List<Status> feedPage;
 
-    public GetFeedResponse(boolean hasMorePages, List<Status> feedPage) {
+    public GetFeedResponse(List<Status> feedPage, boolean hasMorePages) {
         super(true, hasMorePages);
         this.feedPage = feedPage;
     }

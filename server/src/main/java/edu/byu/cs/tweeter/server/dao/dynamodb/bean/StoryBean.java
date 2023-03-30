@@ -2,6 +2,8 @@ package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
 
 import java.util.List;
 
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
@@ -13,6 +15,9 @@ public class StoryBean {
     private String post;
     private List<String> urls;
     private List<String> mentions;
+    private String senderFirstName;
+    private String senderLastName;
+    private String senderImage;
 
     @DynamoDbPartitionKey
     public String getSenderAlias() {
@@ -54,5 +59,34 @@ public class StoryBean {
 
     public void setMentions(List<String> mentions) {
         this.mentions = mentions;
+    }
+
+    public String getSenderFirstName() {
+        return senderFirstName;
+    }
+
+    public void setSenderFirstName(String senderFirstName) {
+        this.senderFirstName = senderFirstName;
+    }
+
+    public String getSenderLastName() {
+        return senderLastName;
+    }
+
+    public void setSenderLastName(String senderLastName) {
+        this.senderLastName = senderLastName;
+    }
+
+    public String getSenderImage() {
+        return senderImage;
+    }
+
+    public void setSenderImage(String senderImage) {
+        this.senderImage = senderImage;
+    }
+
+    public Status convertStoryToStatus() {
+        User user = new User(this.getSenderFirstName(), this.getSenderLastName(), this.getSenderAlias(), this.getSenderImage());
+        return new Status(this.getPost(), user, String.valueOf(this.getTimestamp()), this.getUrls(), this.getMentions());
     }
 }

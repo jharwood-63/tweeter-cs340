@@ -65,8 +65,7 @@ public class StatusService extends Service {
             throw new RuntimeException("[Bad Request] Request must have a limit greater than 0");
         }
 
-        Pair<List<Status>, Boolean> data = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
-        return new GetFeedResponse(data.getSecond(), data.getFirst());
+        return getFeedDAO().getFeed(request);
     }
 
     public GetStoryResponse getStory(GetStoryRequest request) {
@@ -80,11 +79,6 @@ public class StatusService extends Service {
             throw new RuntimeException("[Bad Request] Request must have a limit greater than 0");
         }
 
-        Pair<List<Status>, Boolean> data = getFakeData().getPageOfStatus(request.getLastStatus(), request.getLimit());
-        return new GetStoryResponse(data.getSecond(), data.getFirst());
-    }
-
-    FakeData getFakeData() {
-        return FakeData.getInstance();
+        return getStoryDAO().getStory(request);
     }
 }

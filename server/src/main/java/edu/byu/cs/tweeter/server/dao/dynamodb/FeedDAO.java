@@ -79,10 +79,6 @@ public class FeedDAO extends DAOUtils implements IFeedDAO {
                     page.items().forEach(feedBean -> response.getFeedPage().add(feedBean.convertFeedToStatus()));
                 });
 
-        if (response.getFeedPage().size() == 0) {
-            return new GetFeedResponse("Unable to retrieve feed with the given information", false);
-        }
-
         return response;
     }
 

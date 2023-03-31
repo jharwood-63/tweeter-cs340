@@ -63,8 +63,6 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        getFollowDAO().getFollowing(request);
-
         return getFollowDAO().getFollowing(request);
     }
 
@@ -84,10 +82,10 @@ public class FollowService extends Service {
         }
 
         getFollowDAO().unfollow(request);
-        // -1 from their followers
-        // -1 from your following
-        getUserDAO().updateFollowingCount(request.getFollower().getAlias(), -1);
-        getUserDAO().updateFollowersCount(request.getFollowee().getAlias(), -1);
+        // -1 from followee's followers count
+        // -1 from follower's following count
+        getUserDAO().decrementFollowingCount(request.getFollower().getAlias());
+        getUserDAO().decrementFollowersCount(request.getFollowee().getAlias());
 
         return new UnfollowResponse(true);
     }
@@ -98,10 +96,10 @@ public class FollowService extends Service {
         }
 
         getFollowDAO().follow(request);
-        // +1 to their followers
-        // +1 to your following
-        getUserDAO().updateFollowingCount(request.getFollower().getAlias(), 1);
-        getUserDAO().updateFollowersCount(request.getFollowee().getAlias(), 1);
+        // +1 to followee's followers count
+        // +1 to follower's following count
+        getUserDAO().incrementFollowingCount(request.getFollower().getAlias());
+        getUserDAO().incrementFollowersCount(request.getFollowee().getAlias());
 
         return new FollowResponse(true);
     }

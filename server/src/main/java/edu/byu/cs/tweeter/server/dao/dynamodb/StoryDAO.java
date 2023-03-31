@@ -70,10 +70,6 @@ public class StoryDAO extends DAOUtils implements IStoryDAO {
                     page.items().forEach(storyBean -> response.getStoryPage().add(storyBean.convertStoryToStatus()));
                 });
 
-        if (response.getStoryPage().size() == 0) {
-            return new GetStoryResponse("Unable to retrieve story with the given information", false);
-        }
-
         return response;
     }
 

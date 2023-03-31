@@ -2,9 +2,11 @@ package edu.byu.cs.tweeter.client.model.net;
 
 import android.os.Handler;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,9 +30,15 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.Authentica
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
+import edu.byu.cs.tweeter.model.net.TweeterRemoteException;
+import edu.byu.cs.tweeter.model.net.request.LoginRequest;
+import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 
 public class ApiTest {
-    private final AuthToken authToken = new AuthToken("12345", "3/15/23");
+    private AuthToken authToken;
+    private User currUser;
+
+    private ServerFacade serverFacade;
 
     private static final String MALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/donald_duck.png";
     private static final String FEMALE_IMAGE_URL = "https://faculty.cs.byu.edu/~jwilkerson/cs340/tweeter/images/daisy_duck.png";
@@ -38,15 +46,26 @@ public class ApiTest {
     private static final User targetUser = new User("Allen", "Anderson", "@allen", MALE_IMAGE_URL);
     private static final User lastUser = new User("Amy", "Ames", "@amy", FEMALE_IMAGE_URL);
 
+    private final User james = new User("James", "Talmage", "@jt", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40jt");
+
+    @BeforeEach
+    public void setup() throws IOException, TweeterRemoteException {
+        serverFacade = new ServerFacade();
+        LoginRequest request = new LoginRequest("@BYU", "byu");
+        LoginResponse response = serverFacade.login(request, "login");
+        authToken = response.getAuthToken();
+        currUser = response.getUser();
+    }
+
     @Test
     public void unfollowTest() {
-        UnfollowTask unfollowTask = new UnfollowTask(authToken, targetUser, lastUser, null);
+        UnfollowTask unfollowTask = new UnfollowTask(authToken, james, currUser, null);
         unfollowTask.run();
     }
 
     @Test
     public void followTest() {
-        FollowTask followTask = new FollowTask(authToken, targetUser, lastUser, null);
+        FollowTask followTask = new FollowTask(authToken, james, currUser, null);
         followTask.run();
     }
 
@@ -65,13 +84,13 @@ public class ApiTest {
 
     @Test
     public void testGetFollowersCount() {
-        GetFollowersCountTask getFollowersCountTask = new GetFollowersCountTask(authToken, targetUser, null);
+        GetFollowersCountTask getFollowersCountTask = new GetFollowersCountTask(authToken, james, null);
         getFollowersCountTask.run();
     }
 
     @Test
     public void testGetFollowingCount() {
-        GetFollowingCountTask getFollowingCountTask = new GetFollowingCountTask(authToken, targetUser, null);
+        GetFollowingCountTask getFollowingCountTask = new GetFollowingCountTask(authToken, james, null);
         getFollowingCountTask.run();
     }
 

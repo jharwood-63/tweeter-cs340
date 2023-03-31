@@ -38,7 +38,7 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
     private static final String FOLLOWS_PARTITION_KEY = "follow_handle";
     private static final String FOLLOWS_SORT_KEY = "followee_handle";
 
-    private static final int PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 20;
 
     private DynamoDbTable<FollowBean> followTable;
     private DynamoDbIndex<FollowBean> followIndex;
@@ -71,22 +71,17 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
      */
     public GetFollowingResponse getFollowing(GetFollowingRequest request) {
         QueryEnhancedRequest queryRequest = createPagedQueryRequest(request.getFollowerAlias(), request.getLimit(),
-                request.getLastFolloweeAlias(), FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
+                request.getLastFolloweeAlias(), FOLLOWS_PARTITION_KEY, FOLLOWS_SORT_KEY);
 
         GetFollowingResponse response = new GetFollowingResponse(new ArrayList<>(), false);
 
-        SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
-        PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
+        PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
         pages.stream()
                 .limit(1)
                 .forEach((Page<FollowBean> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
-                    page.items().forEach(followBean -> response.getFollowees().add(followBean.convertFolloweeToUser()));
+                    page.items().forEach(followee -> response.getFollowees().add(followee.convertFollowerToUser()));
                 });
-
-        if (response.getFollowees().size() == 0) {
-            return new GetFollowingResponse("Unable to retrieve following with the given information");
-        }
 
         return response;
     }
@@ -97,21 +92,18 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
     public GetFollowersResponse getFollowers(GetFollowersRequest request) {
         QueryEnhancedRequest queryRequest = createPagedQueryRequest(request.getFolloweeAlias(), request.getLimit(),
-                request.getLastFollowerAlias(), FOLLOWS_PARTITION_KEY, FOLLOWS_SORT_KEY);
+                request.getLastFollowerAlias(), FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
 
         GetFollowersResponse response = new GetFollowersResponse(new ArrayList<>(), false);
 
-        PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
+        SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
+        PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
         pages.stream()
                 .limit(1)
                 .forEach((Page<FollowBean> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
-                    page.items().forEach(followBean -> response.getFollowers().add(followBean.convertFollowerToUser()));
+                    page.items().forEach(followBean -> response.getFollowers().add(followBean.convertFolloweeToUser()));
                 });
-
-        if (response.getFollowers().size() == 0) {
-            return new GetFollowersResponse("Unable to retrieve followers with the given information");
-        }
 
         return response;
     }
@@ -137,8 +129,9 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
             if (followers.size() > 0) {
                 lastFollowerAlias = followers.get(followers.size() - 1).getAlias();
-                hasMorePages = more.get();
             }
+
+            hasMorePages = more.get();
         }
 
         return followers;

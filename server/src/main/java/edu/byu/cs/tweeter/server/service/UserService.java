@@ -82,7 +82,7 @@ public class UserService extends Service {
             return new GetUserResponse(retrievedUser);
         }
         else {
-            return new GetUserResponse(false, "Unable to find a user with alias " + request.getAlias());
+            return new GetUserResponse(false, "There is no user with alias " + request.getAlias());
         }
     }
 

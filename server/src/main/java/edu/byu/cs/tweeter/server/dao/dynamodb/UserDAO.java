@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -84,22 +85,49 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     }
 
     @Override
-    public void updateFollowersCount(String followeeAlias, int value) {
+    public void decrementFollowersCount(String followeeAlias) {
         UserBean user = getUserBean(followeeAlias);
         int followersCount = user.getFollowersCount();
-        followersCount += value;
+
+        if (followersCount != 0) {
+            followersCount--;
+            user.setFollowersCount(followersCount);
+            getUserTable().updateItem(user);
+        }
+    }
+
+    @Override
+    public void incrementFollowersCount(String followeeAlias) {
+        UserBean user = getUserBean(followeeAlias);
+        int followersCount = user.getFollowersCount();
+
+        followersCount++;
         user.setFollowersCount(followersCount);
         getUserTable().updateItem(user);
     }
 
     @Override
-    public void updateFollowingCount(String followerAlias, int value) {
+    public void decrementFollowingCount(String followerAlias) {
         UserBean user = getUserBean(followerAlias);
         int followingCount = user.getFollowingCount();
-        followingCount += value;
+
+        if (followingCount != 0) {
+            followingCount--;
+            user.setFollowingCount(followingCount);
+            getUserTable().updateItem(user);
+        }
+    }
+
+    @Override
+    public void incrementFollowingCount(String followerAlias) {
+        UserBean user = getUserBean(followerAlias);
+        int followingCount = user.getFollowingCount();
+
+        followingCount++;
         user.setFollowingCount(followingCount);
         getUserTable().updateItem(user);
     }
+
 
     @Override
     public int getFollowingCount(String userAlias) {
@@ -165,6 +193,8 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
         s3.putObject(request);
 
-        return "https://tweeter4340.s3.us-west-2.amazonaws.com/userImages" + userAlias;
+        URL url = s3.getUrl("tweeterm4340", userAlias);
+
+        return url.toString();
     }
 }

@@ -9,8 +9,10 @@ public interface IUserDAO {
     User register(RegisterRequest request);
     User login(LoginRequest request);
     User getUser(GetUserRequest request);
-    void updateFollowersCount(String followeeAlias, int value);
-    void updateFollowingCount(String followerAlias, int value);
+    void decrementFollowersCount(String followeeAlias);
+    void incrementFollowersCount(String followeeAlias);
+    void decrementFollowingCount(String followerAlias);
+    void incrementFollowingCount(String followerAlias);
     int getFollowingCount(String userAlias);
     int getFollowersCount(String userAlias);
 }

@@ -1,32 +1,33 @@
 package edu.byu.cs.tweeter.model.net.request;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.User;
 
 public class UnfollowRequest extends AuthenticatedRequest {
     //FIXME: REMEMBER TO UPDATE THE MODEL IN AWS API GATEWAY
-    private String followeeAlias; // person being unfollowed
-    private String followerAlias; // person that is doing the unfollowing
+    private User followee; // person being unfollowed
+    private User follower; // person that is doing the unfollowing
     private UnfollowRequest() {}
 
-    public UnfollowRequest(AuthToken authToken, String followeeAlias, String followerAlias) {
+    public UnfollowRequest(AuthToken authToken, User followee, User follower) {
         super(authToken);
-        this.followeeAlias = followeeAlias;
-        this.followerAlias = followerAlias;
+        this.followee = followee;
+        this.follower = follower;
     }
 
-    public String getFolloweeAlias() {
-        return followeeAlias;
+    public User getFollowee() {
+        return followee;
     }
 
-    public void setFolloweeAlias(String followeeAlias) {
-        this.followeeAlias = followeeAlias;
+    public void setFollowee(User followee) {
+        this.followee = followee;
     }
 
-    public String getFollowerAlias() {
-        return followerAlias;
+    public User getFollower() {
+        return follower;
     }
 
-    public void setFollowerAlias(String followerAlias) {
-        this.followerAlias = followerAlias;
+    public void setFollower(User follower) {
+        this.follower = follower;
     }
 }

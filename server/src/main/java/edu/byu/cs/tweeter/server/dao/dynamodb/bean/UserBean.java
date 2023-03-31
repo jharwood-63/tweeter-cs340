@@ -10,6 +10,7 @@ public class UserBean {
     private String firstName;
     private String lastName;
     private String password;
+    private String salt;
     private String imageLocation;
     private int followersCount;
     private int followingCount;
@@ -45,6 +46,14 @@ public class UserBean {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public String getImageLocation() {

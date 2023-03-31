@@ -167,8 +167,8 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
     @Override
     public void unfollow(UnfollowRequest request) {
         Key key = Key.builder()
-                .partitionValue(request.getFollowerAlias())
-                .sortValue(request.getFolloweeAlias())
+                .partitionValue(request.getFollower().getAlias())
+                .sortValue(request.getFollowee().getAlias())
                 .build();
 
         getFollowTable().deleteItem(key);

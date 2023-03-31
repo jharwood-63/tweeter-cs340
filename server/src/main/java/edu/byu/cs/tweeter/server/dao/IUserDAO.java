@@ -6,8 +6,8 @@ import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 
 public interface IUserDAO {
-    void register(RegisterRequest request);
-    void verifyCredentials(LoginRequest request);
+    User register(RegisterRequest request);
+    User login(LoginRequest request);
     User getUser(GetUserRequest request);
     void updateFollowersCount(String followeeAlias, int value);
     void updateFollowingCount(String followerAlias, int value);

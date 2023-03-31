@@ -1,5 +1,7 @@
 package edu.byu.cs.tweeter.server.service;
 
+import java.util.UUID;
+
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
@@ -42,13 +44,13 @@ public class UserService extends Service {
             throw new RuntimeException("[Bad Request] Missing an image");
         }
 
-        getUserDAO().register(request);
+        User user = getUserDAO().register(request);
+        if (user != null) {
+            AuthToken authToken = uploadNewAuthToken();
+            return new RegisterResponse(user, authToken);
+        }
 
-        //FIXME: REMOVE THIS
-        User registeredUser = getFakeData().getFirstUser();
-        AuthToken authToken = getFakeData().getAuthToken();
-
-        return new RegisterResponse(registeredUser, authToken);
+        return new RegisterResponse("Unable to create new user account");
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -58,10 +60,13 @@ public class UserService extends Service {
             throw new RuntimeException("[Bad Request] Missing a password");
         }
 
-        // TODO: Generates dummy data. Replace with a real implementation.
-        User user = getDummyUser();
-        AuthToken authToken = getDummyAuthToken();
-        return new LoginResponse(user, authToken);
+        User user = getUserDAO().login(request);
+        if (user != null) {
+            AuthToken authToken = uploadNewAuthToken();
+            return new LoginResponse(user, authToken);
+        }
+
+        return new LoginResponse("Unable to authenticate user");
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
@@ -87,33 +92,9 @@ public class UserService extends Service {
         return new LogoutResponse();
     }
 
-    /**
-     * Returns the dummy user to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy user.
-     *
-     * @return a dummy user.
-     */
-    User getDummyUser() {
-        return getFakeData().getFirstUser();
-    }
-
-    /**
-     * Returns the dummy auth token to be returned by the login operation.
-     * This is written as a separate method to allow mocking of the dummy auth token.
-     *
-     * @return a dummy auth token.
-     */
-    AuthToken getDummyAuthToken() {
-        return getFakeData().getAuthToken();
-    }
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy users and auth tokens.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return FakeData.getInstance();
+    private AuthToken uploadNewAuthToken() {
+        AuthToken authToken = new AuthToken(UUID.randomUUID().toString(), String.valueOf(System.currentTimeMillis()));
+        getAuthTokenDAO().login(authToken);
+        return authToken;
     }
 }

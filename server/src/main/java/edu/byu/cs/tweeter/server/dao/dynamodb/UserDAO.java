@@ -7,6 +7,11 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.Base64;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
@@ -36,28 +41,40 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     }
 
     @Override
-    public void register(RegisterRequest request) {
-        // put image in s3
+    public User register(RegisterRequest request) {
         String imageLocation = uploadImageToS3(request.getImageUrl(), request.getUsername());
-        // create userbean
-        UserBean newUserBean = new UserBean();
-        newUserBean.setAlias(request.getUsername());
-//        newUserBean.setName(request.getFirstName() + " " + request.getLastName());
-        //FIXME: FIGURE OUT HOW TO HASH THIS FIRST
-//        userBean.setPassword(request.getPassword());
-        newUserBean.setImageLocation(imageLocation);
-        // add user to db
-        DynamoDbTable<UserBean> table = getEnhancedClient().table(USER_TABLE_NAME, TableSchema.fromBean(UserBean.class));
-        Key key = Key.builder().partitionValue(USER_PARTITION_KEY).build();
 
-        table.putItem(newUserBean);
-        // create authToken
-        // add authToken to db
+        String salt = getSalt();
+        String securePassword = getSecurePassword(request.getPassword(), salt);
+
+        UserBean user = new UserBean();
+        user.setAlias(request.getUsername());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setPassword(securePassword);
+        user.setSalt(salt);
+        user.setImageLocation(imageLocation);
+        user.setFollowersCount(0);
+        user.setFollowingCount(0);
+        getUserTable().putItem(user);
+
+        return user.convertUserBeanToUser();
     }
 
     @Override
-    public void verifyCredentials(LoginRequest request) {
+    public User login(LoginRequest request) {
+        Key key = Key.builder().partitionValue(request.getUsername()).build();
+        UserBean user = getUserTable().getItem(key);
 
+        if (user != null) {
+            String secureSuppliedPassword = getSecurePassword(request.getPassword(), user.getSalt());
+
+            if (secureSuppliedPassword.equals(user.getPassword())) {
+                return user.convertUserBeanToUser();
+            }
+        }
+
+        return null;
     }
 
     @Override
@@ -92,6 +109,37 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     @Override
     public int getFollowersCount(String userAlias) {
         return getUserBean(userAlias).getFollowersCount();
+    }
+
+    private String getSecurePassword(String password, String salt) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(salt.getBytes());
+            byte[] bytes = md.digest(password.getBytes());
+
+            StringBuilder sb = new StringBuilder();
+            for (byte aByte : bytes) {
+                sb.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+            }
+
+            return sb.toString();
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("[Server Error] Unable to hash password!");
+        }
+    }
+
+    private String getSalt() {
+        try {
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            byte[] salt = new byte[16];
+            sr.nextBytes(salt);
+
+            return Base64.getEncoder().encodeToString(salt);
+        }
+        catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new RuntimeException("[Server Error] Unable to get salt!");
+        }
     }
 
     private UserBean getUserBean(String alias) {

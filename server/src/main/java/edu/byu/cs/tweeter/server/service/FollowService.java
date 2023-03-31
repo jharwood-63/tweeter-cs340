@@ -86,8 +86,8 @@ public class FollowService extends Service {
         getFollowDAO().unfollow(request);
         // -1 from their followers
         // -1 from your following
-        getUserDAO().updateFollowingCount(request.getFollowerAlias(), -1);
-        getUserDAO().updateFollowersCount(request.getFolloweeAlias(), -1);
+        getUserDAO().updateFollowingCount(request.getFollower().getAlias(), -1);
+        getUserDAO().updateFollowersCount(request.getFollowee().getAlias(), -1);
 
         return new UnfollowResponse(true);
     }

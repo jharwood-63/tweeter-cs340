@@ -27,7 +27,7 @@ public class UnfollowTask extends AuthenticatedTask {
     @Override
     protected void runTask() {
         try {
-            UnfollowResponse response = getServerFacade().unfollow(new UnfollowRequest(authToken, followee.getAlias(), currUser.getAlias()), "unfollow");
+            UnfollowResponse response = getServerFacade().unfollow(new UnfollowRequest(authToken, followee, currUser), "unfollow");
             // We could do this from the presenter, without a task and handler, but we will
             // eventually access the database from here when we aren't using dummy data.
 

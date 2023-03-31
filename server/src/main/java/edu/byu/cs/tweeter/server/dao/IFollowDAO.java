@@ -15,12 +15,10 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 
 public interface IFollowDAO {
-    int getFollowingCount(String userAlias);
-    int getFollowersCount(String userAlias);
     GetFollowingResponse getFollowing(GetFollowingRequest request);
     GetFollowersResponse getFollowers(GetFollowersRequest request);
     List<User> getAllFollowers(String followeeAlias);
-    UnfollowResponse unfollow(UnfollowRequest request);
-    FollowResponse follow(FollowRequest request);
-    IsFollowerResponse isFollower(IsFollowerRequest request);
+    void unfollow(UnfollowRequest request);
+    void follow(FollowRequest request);
+    boolean isFollower(IsFollowerRequest request);
 }

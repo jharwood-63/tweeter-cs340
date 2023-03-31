@@ -17,6 +17,7 @@ import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
+import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
 
 /**
@@ -24,6 +25,7 @@ import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
  */
 public class FollowService extends Service {
     private IFollowDAO followDAO;
+    private IUserDAO userDAO;
 
     private IFollowDAO getFollowDAO() {
         if (followDAO == null) {
@@ -31,6 +33,14 @@ public class FollowService extends Service {
         }
 
         return followDAO;
+    }
+
+    private IUserDAO getUserDAO() {
+        if (userDAO == null) {
+            userDAO = getFactory().getUserDAO();
+        }
+
+        return userDAO;
     }
 
     /**
@@ -64,6 +74,7 @@ public class FollowService extends Service {
         } else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
+
         return getFollowDAO().getFollowers(request);
     }
 
@@ -72,6 +83,12 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
+        getFollowDAO().unfollow(request);
+        // -1 from their followers
+        // -1 from your following
+        getUserDAO().updateFollowingCount(request.getFollowerAlias(), -1);
+        getUserDAO().updateFollowersCount(request.getFolloweeAlias(), -1);
+
         return new UnfollowResponse(true);
     }
 
@@ -79,6 +96,12 @@ public class FollowService extends Service {
         if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
+
+        getFollowDAO().follow(request);
+        // +1 to their followers
+        // +1 to your following
+        getUserDAO().updateFollowingCount(request.getFollower().getAlias(), 1);
+        getUserDAO().updateFollowersCount(request.getFollowee().getAlias(), 1);
 
         return new FollowResponse(true);
     }
@@ -91,7 +114,7 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        int count = getFollowDAO().getFollowersCount(request.getUserAlias());
+        int count = getUserDAO().getFollowersCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
     }
@@ -104,7 +127,7 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        int count = getFollowDAO().getFollowingCount(request.getUserAlias());
+        int count = getUserDAO().getFollowingCount(request.getUserAlias());
 
         return new GetCountResponse(count, true);
     }
@@ -120,7 +143,7 @@ public class FollowService extends Service {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
-        boolean isFollower = new Random().nextInt() > 0;
+        boolean isFollower = getFollowDAO().isFollower(request);
 
         return new IsFollowerResponse(isFollower);
     }

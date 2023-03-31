@@ -72,9 +72,9 @@ public class UserService extends Service {
             throw new RuntimeException("[Bad Request] Missing user alias");
         }
 
-        User user = getFakeData().findUserByAlias(request.getAlias());
-        if (user != null) {
-            return new GetUserResponse(user);
+        User retrievedUser = getUserDAO().getUser(request);
+        if (retrievedUser != null) {
+            return new GetUserResponse(retrievedUser);
         }
         else {
             return new GetUserResponse(false, "Unable to find a user with alias " + request.getAlias());
@@ -82,10 +82,7 @@ public class UserService extends Service {
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        // No need to authenticate the user if they are logging out right?
-//        if (!getUserDAO().authenticateRequest(request.getAuthToken())) {
-//            throw new RuntimeException("[Bad Request] Unauthenticated User");
-//        }
+        getAuthTokenDAO().logout(request.getAuthToken());
 
         return new LogoutResponse();
     }

@@ -40,13 +40,13 @@ public class ApiTest {
 
     @Test
     public void unfollowTest() {
-        UnfollowTask unfollowTask = new UnfollowTask(authToken, targetUser, null);
+        UnfollowTask unfollowTask = new UnfollowTask(authToken, targetUser, lastUser, null);
         unfollowTask.run();
     }
 
     @Test
     public void followTest() {
-        FollowTask followTask = new FollowTask(authToken, targetUser, null);
+        FollowTask followTask = new FollowTask(authToken, targetUser, lastUser, null);
         followTask.run();
     }
 

@@ -1,14 +1,18 @@
 package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
 
+import edu.byu.cs.tweeter.model.domain.User;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @DynamoDbBean
 public class UserBean {
     private String alias;
-    private String name;
+    private String firstName;
+    private String lastName;
     private String password;
     private String imageLocation;
+    private int followersCount;
+    private int followingCount;
 
     @DynamoDbPartitionKey
     public String getAlias() {
@@ -19,12 +23,20 @@ public class UserBean {
         this.alias = alias;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getPassword() {
@@ -41,5 +53,25 @@ public class UserBean {
 
     public void setImageLocation(String imageLocation) {
         this.imageLocation = imageLocation;
+    }
+
+    public int getFollowersCount() {
+        return followersCount;
+    }
+
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public int getFollowingCount() {
+        return followingCount;
+    }
+
+    public void setFollowingCount(int followingCount) {
+        this.followingCount = followingCount;
+    }
+
+    public User convertUserBeanToUser() {
+        return new User(this.getFirstName(), this.getLastName(), this.getAlias(), this.getImageLocation());
     }
 }

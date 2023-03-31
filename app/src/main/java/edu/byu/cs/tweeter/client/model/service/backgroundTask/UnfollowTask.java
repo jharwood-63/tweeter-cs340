@@ -16,16 +16,18 @@ public class UnfollowTask extends AuthenticatedTask {
      * The user that is being followed.
      */
     private final User followee;
+    private final User currUser;
 
-    public UnfollowTask(AuthToken authToken, User followee, Handler messageHandler) {
+    public UnfollowTask(AuthToken authToken, User followee, User currUser, Handler messageHandler) {
         super(authToken, messageHandler);
         this.followee = followee;
+        this.currUser = currUser;
     }
 
     @Override
     protected void runTask() {
         try {
-            UnfollowResponse response = getServerFacade().unfollow(new UnfollowRequest(authToken), "unfollow");
+            UnfollowResponse response = getServerFacade().unfollow(new UnfollowRequest(authToken, followee.getAlias(), currUser.getAlias()), "unfollow");
             // We could do this from the presenter, without a task and handler, but we will
             // eventually access the database from here when we aren't using dummy data.
 

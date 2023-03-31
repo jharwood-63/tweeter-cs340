@@ -32,13 +32,13 @@ public class FollowService extends Service {
 
     public void unfollow(User selectedUser, SimpleNotificationObserver observer) {
         UnfollowTask unfollowTask = new UnfollowTask(Cache.getInstance().getCurrUserAuthToken(),
-                selectedUser, new SimpleNotificationHandler(observer));
+                selectedUser, Cache.getInstance().getCurrUser(), new SimpleNotificationHandler(observer));
         runTask(unfollowTask);
     }
 
     public void follow(User selectedUser, SimpleNotificationObserver observer) {
         FollowTask followTask = new FollowTask(Cache.getInstance().getCurrUserAuthToken(),
-                selectedUser, new SimpleNotificationHandler(observer));
+                selectedUser, Cache.getInstance().getCurrUser(), new SimpleNotificationHandler(observer));
         runTask(followTask);
     }
 

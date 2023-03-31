@@ -12,14 +12,11 @@ import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
 import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
-import edu.byu.cs.tweeter.model.net.response.FollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
-import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.bean.FollowBean;
-import edu.byu.cs.tweeter.util.FakeData;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -60,18 +57,6 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         }
 
         return followIndex;
-    }
-
-    public int getFollowingCount(String userAlias) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-//        assert user != null;
-        return getFakeData().getFakeUsers().size();
-    }
-
-    public int getFollowersCount(String userAlias) {
-        // TODO: uses the dummy data.  Replace with a real implementation.
-//        assert user != null;
-        return getFakeData().getFakeUsers().size();
     }
 
     /**
@@ -180,72 +165,38 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
     }
 
     @Override
-    public UnfollowResponse unfollow(UnfollowRequest request) {
-        return null;
+    public void unfollow(UnfollowRequest request) {
+        Key key = Key.builder()
+                .partitionValue(request.getFollowerAlias())
+                .sortValue(request.getFolloweeAlias())
+                .build();
+
+        getFollowTable().deleteItem(key);
     }
 
     @Override
-    public FollowResponse follow(FollowRequest request) {
-        return null;
+    public void follow(FollowRequest request) {
+        FollowBean followBean = new FollowBean();
+        followBean.setFollow_handle(request.getFollower().getAlias());
+        followBean.setFollow_name(request.getFollower().getName());
+        followBean.setFollow_image(request.getFollower().getImageUrl());
+        followBean.setFollowee_handle(request.getFollowee().getAlias());
+        followBean.setFollowee_name(request.getFollowee().getName());
+        followBean.setFollowee_image(request.getFollowee().getImageUrl());
+
+        getFollowTable().putItem(followBean);
     }
 
     @Override
-    public IsFollowerResponse isFollower(IsFollowerRequest request) {
-        return null;
-    }
+    public boolean isFollower(IsFollowerRequest request) {
+        Key key = Key.builder()
+                .partitionValue(request.getFollowerAlias())
+                .sortValue(request.getFolloweeAlias())
+                .build();
 
-    /**
-     * Determines the index for the first followee in the specified 'allFollowees' list that should
-     * be returned in the current request. This will be the index of the next followee after the
-     * specified 'lastFollowee'.
-     *
-     * @param lastAlias the alias of the last followee that was returned in the previous
-     *                          request or null if there was no previous request.
-     * @param allFollows the generated list of followees from which we are returning paged results.
-     * @return the index of the first followee to be returned.
-     */
-    private int getStartingIndex(String lastAlias, List<User> allFollows) {
+        FollowBean follow = getFollowTable().getItem(key);
 
-        int index = 0;
-
-        if(lastAlias != null) {
-            // This is a paged request for something after the first page. Find the first item
-            // we should return
-            for (int i = 0; i < allFollows.size(); i++) {
-                if(lastAlias.equals(allFollows.get(i).getAlias())) {
-                    // We found the index of the last item returned last time. Increment to get
-                    // to the first one we should return
-                    index = i + 1;
-                    break;
-                }
-            }
-        }
-
-        return index;
-    }
-
-    /**
-     * Returns the list of dummy followee data. This is written as a separate method to allow
-     * mocking of the followees.
-     *
-     * @return the followees.
-     */
-    List<User> getDummyFollowees() {
-        return getFakeData().getFakeUsers();
-    }
-
-    List<User> getDummyFollowers() {
-        return getFakeData().getFakeUsers();
-    }
-
-    /**
-     * Returns the {@link FakeData} object used to generate dummy followees.
-     * This is written as a separate method to allow mocking of the {@link FakeData}.
-     *
-     * @return a {@link FakeData} instance.
-     */
-    FakeData getFakeData() {
-        return FakeData.getInstance();
+        return follow != null;
     }
 
     private static boolean isNonEmptyString(String value) {

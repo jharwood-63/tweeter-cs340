@@ -39,7 +39,8 @@ public class AuthTokenDAO extends DAOUtils implements IAuthTokenDAO {
 
     @Override
     public void logout(AuthToken authToken) {
-
+        Key key = Key.builder().partitionValue(authToken.getToken()).build();
+        getAuthTokenTable().deleteItem(key);
     }
 
     private boolean compareAuthToken(String token) {

@@ -5,20 +5,11 @@ import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.DynamoDAOFactory;
 
 public class Service {
-    private DAOFactory factory;
     private IAuthTokenDAO authTokenDAO;
 
-    protected DAOFactory getFactory() {
-        if (factory == null) {
-            factory = new DynamoDAOFactory();
-        }
-
-        return factory;
-    }
-
-    protected IAuthTokenDAO getAuthTokenDAO() {
+    protected IAuthTokenDAO getAuthTokenDAO(DAOFactory factory) {
         if (authTokenDAO == null) {
-            authTokenDAO = getFactory().getAuthTokenDAO();
+            authTokenDAO = factory.getAuthTokenDAO();
         }
 
         return authTokenDAO;

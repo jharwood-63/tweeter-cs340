@@ -12,16 +12,22 @@ import edu.byu.cs.tweeter.model.net.response.GetUserResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.model.net.response.LogoutResponse;
 import edu.byu.cs.tweeter.model.net.response.RegisterResponse;
+import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public class UserService extends Service {
 
     private IUserDAO userDAO;
+    private final DAOFactory factory;
+    
+    public UserService(DAOFactory factory) {
+        this.factory = factory;
+    }
 
-    protected IUserDAO getUserDAO() {
+    private IUserDAO getUserDAO() {
         if (userDAO == null) {
-            userDAO = getFactory().getUserDAO();
+            userDAO = factory.getUserDAO();
         }
 
         return userDAO;
@@ -70,7 +76,7 @@ public class UserService extends Service {
     }
 
     public GetUserResponse getUser(GetUserRequest request) {
-        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
         else if (request.getAlias() == null || request.getAlias().equals("")) {
@@ -87,14 +93,14 @@ public class UserService extends Service {
     }
 
     public LogoutResponse logout(LogoutRequest request) {
-        getAuthTokenDAO().logout(request.getAuthToken());
+        getAuthTokenDAO(factory).logout(request.getAuthToken());
 
         return new LogoutResponse();
     }
 
     private AuthToken uploadNewAuthToken() {
         AuthToken authToken = new AuthToken(UUID.randomUUID().toString(), String.valueOf(System.currentTimeMillis()));
-        getAuthTokenDAO().login(authToken);
+        getAuthTokenDAO(factory).login(authToken);
         return authToken;
     }
 }

@@ -7,6 +7,6 @@ import edu.byu.cs.tweeter.server.service.FollowService;
 public class BaseFollowHandler extends Handler<FollowService> {
     @Override
     protected FollowService createService() {
-        return new FollowService();
+        return new FollowService(getFactory());
     }
 }

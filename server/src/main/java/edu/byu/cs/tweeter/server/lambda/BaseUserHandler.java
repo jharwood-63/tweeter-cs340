@@ -7,6 +7,6 @@ import edu.byu.cs.tweeter.server.service.UserService;
 public class BaseUserHandler extends Handler<UserService> {
     @Override
     protected UserService createService() {
-        return new UserService();
+        return new UserService(getFactory());
     }
 }

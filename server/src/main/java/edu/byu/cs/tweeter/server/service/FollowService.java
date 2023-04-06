@@ -15,6 +15,7 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
+import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
@@ -26,10 +27,15 @@ import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
 public class FollowService extends Service {
     private IFollowDAO followDAO;
     private IUserDAO userDAO;
+    private final DAOFactory factory;
+    
+    public FollowService(DAOFactory factory) {
+        this.factory = factory;
+    }
 
     private IFollowDAO getFollowDAO() {
         if (followDAO == null) {
-            followDAO = getFactory().getFollowDAO();
+            followDAO = factory.getFollowDAO();
         }
 
         return followDAO;
@@ -37,7 +43,7 @@ public class FollowService extends Service {
 
     private IUserDAO getUserDAO() {
         if (userDAO == null) {
-            userDAO = getFactory().getUserDAO();
+            userDAO = factory.getUserDAO();
         }
 
         return userDAO;
@@ -59,7 +65,7 @@ public class FollowService extends Service {
         else if(request.getLimit() <= 0) {
             throw new RuntimeException("[Bad Request] Request needs to have a positive limit");
         }
-        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -77,7 +83,7 @@ public class FollowService extends Service {
     }
 
     public UnfollowResponse unfollow(UnfollowRequest request) {
-        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -91,7 +97,7 @@ public class FollowService extends Service {
     }
 
     public FollowResponse follow(FollowRequest request) {
-        if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -108,7 +114,7 @@ public class FollowService extends Service {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -121,7 +127,7 @@ public class FollowService extends Service {
         if (request.getUserAlias() == null || request.getUserAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a user");
         }
-        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 
@@ -137,7 +143,7 @@ public class FollowService extends Service {
         else if (request.getFollowerAlias() == null || request.getFollowerAlias().equals("")) {
             throw new RuntimeException("[Bad Request] Request must have a follower");
         }
-        else if (!getAuthTokenDAO().authenticateRequest(request.getAuthToken())) {
+        else if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
 

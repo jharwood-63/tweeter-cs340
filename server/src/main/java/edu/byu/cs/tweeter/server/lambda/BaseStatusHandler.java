@@ -7,6 +7,6 @@ import edu.byu.cs.tweeter.server.service.StatusService;
 public class BaseStatusHandler extends Handler<StatusService> {
     @Override
     protected StatusService createService() {
-        return new StatusService();
+        return new StatusService(getFactory());
     }
 }

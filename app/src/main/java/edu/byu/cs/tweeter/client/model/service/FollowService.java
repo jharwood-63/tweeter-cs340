@@ -1,5 +1,8 @@
 package edu.byu.cs.tweeter.client.model.service;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.FollowTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
@@ -42,15 +45,25 @@ public class FollowService extends Service {
         runTask(followTask);
     }
 
-    public void updateCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer) {
+    public void updateFollowingAndFollowersCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer) {
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+
+        updateFollowerCount(selectedUser, observer, executor);
+        updateFollowingCount(selectedUser, observer, executor);
+    }
+
+    private void updateFollowerCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer, ExecutorService executor) {
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(),
                 selectedUser, new CountNotificationHandler(observer));
 
+        executor.execute(followersCountTask);
+    }
+
+    private void updateFollowingCount(User selectedUser, AuthenticatedNotificationObserver<Integer> observer, ExecutorService executor) {
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(Cache.getInstance().getCurrUserAuthToken(),
                 selectedUser, new CountNotificationHandler(observer));
 
-        runTask(followersCountTask);
-        runTask(followingCountTask);
+        executor.execute(followingCountTask);
     }
 
     public void isFollower(User selectedUser, AuthenticatedNotificationObserver<Boolean> observer) {

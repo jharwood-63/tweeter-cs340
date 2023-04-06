@@ -26,7 +26,7 @@ public class MainPresenter extends Presenter {
 
         void updateSelectedUserFollowingAndFollowers();
 
-        void updateFollowButton(boolean value);
+        void updateFollowButton();
 
         void setFollowButtonEnabled(boolean value);
 
@@ -77,8 +77,8 @@ public class MainPresenter extends Presenter {
         followService.follow(selectedUser, new UpdateFollowStatusObserver());
     }
 
-    public void updateFollowingAndFollowers(User selectedUser) {
-        followService.updateCount(selectedUser, new UpdateCountObserver());
+    public void updateFollowingAndFollowersCount(User selectedUser) {
+        followService.updateFollowingAndFollowersCount(selectedUser, new UpdateCountObserver());
     }
 
     public void logout() {
@@ -183,7 +183,7 @@ public class MainPresenter extends Presenter {
         @Override
         public void handleSuccess() {
             getMainView().updateSelectedUserFollowingAndFollowers();
-            getMainView().updateFollowButton(false);
+            getMainView().updateFollowButton();
             getMainView().setFollowButtonEnabled(true);
         }
     }

@@ -46,6 +46,7 @@ public class ApiTest {
     private static final User targetUser = new User("Allen", "Anderson", "@allen", MALE_IMAGE_URL);
     private static final User lastUser = new User("Amy", "Ames", "@amy", FEMALE_IMAGE_URL);
 
+    private final User brigham = new User("Brigham", "Young", "@BYU", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40BYU");
     private final User james = new User("James", "Talmage", "@jt", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40jt");
 
     @BeforeEach
@@ -96,7 +97,7 @@ public class ApiTest {
 
     @Test
     public void testIsFollower() {
-        IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, lastUser, targetUser, null);
+        IsFollowerTask isFollowerTask = new IsFollowerTask(authToken, james, brigham, null);
         isFollowerTask.run();
     }
 
@@ -104,7 +105,7 @@ public class ApiTest {
     public void testPostStatus() {
         List<String> urls = new ArrayList<>(Arrays.asList("first url", "second url"));
         List<String> mentions = new ArrayList<>(Arrays.asList("first mention", "second mention"));
-        Status status = new Status("test post", targetUser, "timestamp", urls, mentions);
+        Status status = new Status("Please work", james, String.valueOf(System.currentTimeMillis()), urls, mentions);
         PostStatusTask postStatusTask = new PostStatusTask(authToken, status, null);
 
         postStatusTask.run();
@@ -118,7 +119,7 @@ public class ApiTest {
 
     @Test
     public void testGetFeed() {
-        GetFeedTask getFeedTask = new GetFeedTask(authToken, targetUser, 5, null, null);
+        GetFeedTask getFeedTask = new GetFeedTask(authToken, brigham, 5, null, null);
         getFeedTask.run();
     }
 

@@ -167,16 +167,18 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
 
     @Override
     public void updateSelectedUserFollowingAndFollowers() {
-        presenter.updateFollowingAndFollowers(selectedUser);
+        presenter.updateFollowingAndFollowersCount(selectedUser);
     }
 
     @Override
-    public void updateFollowButton(boolean removed) {
+    public void updateFollowButton() {
         // If follow relationship was removed.
-        if (removed) {
+        if (followButton.getText().toString().equals(getResources().getString(R.string.following))) {
+            Toast.makeText(MainActivity.this, "Changing to Follow", Toast.LENGTH_LONG).show();
             followButton.setText(R.string.follow);
             followButton.setBackgroundColor(getResources().getColor(R.color.colorAccent));
         } else {
+            Toast.makeText(MainActivity.this, "Changing to Following", Toast.LENGTH_LONG).show();
             followButton.setText(R.string.following);
             followButton.setBackgroundColor(getResources().getColor(R.color.white));
             followButton.setTextColor(getResources().getColor(R.color.lightGray));
@@ -196,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     @Override
     public void isFollower(boolean isFollower) {
         // If logged in user if a follower of the selected user, display the follow button as "following"
+        Toast.makeText(MainActivity.this, "isFollower: " + isFollower, Toast.LENGTH_LONG).show();
         if (isFollower) {
             followButton.setText(R.string.following);
             followButton.setBackgroundColor(getResources().getColor(R.color.white));

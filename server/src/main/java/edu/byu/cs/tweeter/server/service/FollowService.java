@@ -143,6 +143,6 @@ public class FollowService extends Service {
 
         boolean isFollower = getFollowDAO().isFollower(request);
 
-        return new IsFollowerResponse(isFollower);
+        return new IsFollowerResponse(true, isFollower);
     }
 }

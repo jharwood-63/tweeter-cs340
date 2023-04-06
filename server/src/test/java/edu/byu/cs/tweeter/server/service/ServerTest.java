@@ -13,12 +13,14 @@ import edu.byu.cs.tweeter.model.net.request.GetCountRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
+import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
+import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.server.dao.dynamodb.AuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
@@ -153,5 +155,20 @@ public class ServerTest {
 
         GetCountResponse followersCountResponse = followService.getFollowersCount(request);
         System.out.println("Followers count: " + followersCountResponse.getCount());
+    }
+
+    @Test
+    public void testIsFollower() {
+        User james = new User("James", "Talmage", "@jt", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40jt");
+        User brigham = new User("Brigham", "Young", "@BYU", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40BYU");
+        AuthToken authToken = new AuthToken("This is a token", Long.toString(System.currentTimeMillis()));
+        AuthTokenDAO authTokenDAO = new AuthTokenDAO();
+        authTokenDAO.login(authToken);
+
+        IsFollowerRequest request = new IsFollowerRequest(authToken, james.getAlias(), brigham.getAlias());
+        FollowService followService = new FollowService();
+        IsFollowerResponse response = followService.isFollower(request);
+
+        System.out.println(response.getIsFollower());
     }
 }

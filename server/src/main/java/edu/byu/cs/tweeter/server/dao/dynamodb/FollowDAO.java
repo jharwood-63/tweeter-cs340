@@ -117,14 +117,15 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         while (hasMorePages) {
             AtomicBoolean more = new AtomicBoolean(false);
             QueryEnhancedRequest queryRequest = createPagedQueryRequest(followeeAlias, PAGE_SIZE,
-                    lastFollowerAlias, FOLLOWS_PARTITION_KEY, FOLLOWS_SORT_KEY);
+                    lastFollowerAlias, FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
 
-            PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
+            SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
+            PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
             pages.stream()
                     .limit(1)
                     .forEach((Page<FollowBean> page) -> {
                         more.set(page.lastEvaluatedKey() != null);
-                        page.items().forEach(followBean -> followers.add(followBean.convertFollowerToUser()));
+                        page.items().forEach(followBean -> followers.add(followBean.convertFolloweeToUser()));
                     });
 
             if (followers.size() > 0) {
@@ -180,6 +181,7 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         getFollowTable().putItem(followBean);
     }
 
+    // am I following them?
     @Override
     public boolean isFollower(IsFollowerRequest request) {
         Key key = Key.builder()

@@ -148,7 +148,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
         for (UserDTO user : users) {
             batch.add(user);
 
-            if (batch.size() > 25) {
+            if (batch.size() == 25) {
                 writeBatchOfUserDTOs(batch);
                 batch = new ArrayList<>();
             }
@@ -156,6 +156,53 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
         if (batch.size() > 0) {
             writeBatchOfUserDTOs(batch);
+        }
+    }
+
+    @Override
+    public void deleteAllUsers(List<UserDTO> users) {
+        List<UserDTO> batch = new ArrayList<>();
+        for (UserDTO user : users) {
+            batch.add(user);
+
+            if (batch.size() == 25) {
+                deleteBatchOfUserDTOs(batch);
+                batch = new ArrayList<>();
+            }
+        }
+
+        if (batch.size() > 0) {
+            writeBatchOfUserDTOs(batch);
+        }
+    }
+
+    private void deleteBatchOfUserDTOs(List<UserDTO> batch) {
+        if(batch.size() > 25) {
+            throw new RuntimeException("Too many users to delete");
+        }
+
+        WriteBatch.Builder<UserDTO> writeBuilder = WriteBatch.builder(UserDTO.class).mappedTableResource(getUserTable());
+        for (UserDTO user : batch) {
+            Key key = Key.builder()
+                    .partitionValue(user.getAlias())
+                    .build();
+            writeBuilder.addDeleteItem(builder -> builder.key(key));
+        }
+
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = getEnhancedClient().batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(getUserTable()).size() > 0) {
+                writeBatchOfUserDTOs(result.unprocessedPutItemsForTable(getUserTable()));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 

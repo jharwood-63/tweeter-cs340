@@ -24,4 +24,5 @@ public interface IFollowDAO {
     void follow(FollowRequest request);
     boolean isFollower(IsFollowerRequest request);
     void addFollowersBatch(List<FollowDTO> followers);
+    void deleteAllFollowers(List<FollowDTO> followers);
 }

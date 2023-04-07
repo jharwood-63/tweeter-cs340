@@ -9,5 +9,6 @@ public class FillDatabase {
     public void fillDatabase() {
         DatabaseFiller filler = new DatabaseFiller(new DynamoDAOFactory());
         filler.fillDatabase();
+//        filler.deleteAllItems();
     }
 }

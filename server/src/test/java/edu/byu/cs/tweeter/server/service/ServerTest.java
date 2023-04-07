@@ -84,7 +84,7 @@ public class ServerTest {
         }}));
 
 //        authTokenDAO.login(authToken);
-        statusService.postStatus(request);
+        statusService.postStatusToStory(request);
     }
 
     @Test

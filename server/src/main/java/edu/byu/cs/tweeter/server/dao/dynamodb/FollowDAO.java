@@ -204,7 +204,7 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         for (FollowDTO follower : followers) {
             batch.add(follower);
 
-            if (batch.size() > 25) {
+            if (batch.size() == 25) {
                 writeBatchOfFollowDTOs(batch);
                 batch = new ArrayList<>();
             }
@@ -212,6 +212,23 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
         if (batch.size() > 0) {
             writeBatchOfFollowDTOs(batch);
+        }
+    }
+
+    @Override
+    public void deleteAllFollowers(List<FollowDTO> followers) {
+        List<FollowDTO> batch = new ArrayList<>();
+        for (FollowDTO follower : followers) {
+            batch.add(follower);
+
+            if (batch.size() == 25) {
+                deleteBatchOfFollowDTOs(batch);
+                batch = new ArrayList<>();
+            }
+        }
+
+        if (batch.size() > 0) {
+            deleteBatchOfFollowDTOs(batch);
         }
     }
 
@@ -223,6 +240,37 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         WriteBatch.Builder<FollowDTO> writeBuilder = WriteBatch.builder(FollowDTO.class).mappedTableResource(getFollowTable());
         for (FollowDTO follower : batch) {
             writeBuilder.addPutItem(builder -> builder.item(follower));
+        }
+
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = getEnhancedClient().batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(getFollowTable()).size() > 0) {
+                writeBatchOfFollowDTOs(result.unprocessedPutItemsForTable(getFollowTable()));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    private void deleteBatchOfFollowDTOs(List<FollowDTO> batch) {
+        if(batch.size() > 25) {
+            throw new RuntimeException("Too many followers to delete");
+        }
+
+        WriteBatch.Builder<FollowDTO> writeBuilder = WriteBatch.builder(FollowDTO.class).mappedTableResource(getFollowTable());
+        for (FollowDTO follower : batch) {
+            Key key = Key.builder()
+                    .partitionValue(follower.getFollow_handle())
+                    .sortValue(follower.getFollowee_handle())
+                    .build();
+            writeBuilder.addDeleteItem(builder -> builder.key(key));
         }
 
         BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()

@@ -19,4 +19,5 @@ public interface IUserDAO {
     int getFollowingCount(String userAlias);
     int getFollowersCount(String userAlias);
     void addUserBatch(List<UserDTO> users);
+    void deleteAllUsers(List<UserDTO> users);
 }

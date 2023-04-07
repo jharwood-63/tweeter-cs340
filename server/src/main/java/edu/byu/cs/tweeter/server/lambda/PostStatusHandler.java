@@ -10,6 +10,6 @@ import edu.byu.cs.tweeter.server.service.StatusService;
 public class PostStatusHandler extends BaseStatusHandler implements RequestHandler<PostStatusRequest, PostStatusResponse> {
     @Override
     public PostStatusResponse handleRequest(PostStatusRequest input, Context context) {
-        return getService().postStatus(input);
+        return getService().postStatusToStory(input);
     }
 }

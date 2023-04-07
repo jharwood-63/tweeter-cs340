@@ -2,6 +2,7 @@ package edu.byu.cs.tweeter.server.dao;
 
 import java.util.List;
 
+import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
@@ -18,7 +19,7 @@ import edu.byu.cs.tweeter.server.dto.FollowDTO;
 public interface IFollowDAO {
     GetFollowingResponse getFollowing(GetFollowingRequest request);
     GetFollowersResponse getFollowers(GetFollowersRequest request);
-    List<User> getAllFollowers(String followeeAlias);
+//    List<User> getFollowersForFeedUpdateQueue(String senderAlias);
     void unfollow(UnfollowRequest request);
     void follow(FollowRequest request);
     boolean isFollower(IsFollowerRequest request);

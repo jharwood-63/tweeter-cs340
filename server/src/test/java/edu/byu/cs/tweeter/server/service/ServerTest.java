@@ -83,7 +83,7 @@ public class ServerTest {
             add("@Dude1");
         }}));
 
-        authTokenDAO.login(authToken);
+//        authTokenDAO.login(authToken);
         statusService.postStatus(request);
     }
 

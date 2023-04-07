@@ -1,8 +1,9 @@
 package edu.byu.cs.tweeter.server.service;
 
-import java.util.Random;
+import java.util.List;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
+import edu.byu.cs.tweeter.model.domain.Status;
+import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.FollowRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowersRequest;
 import edu.byu.cs.tweeter.model.net.request.GetFollowingRequest;
@@ -16,15 +17,19 @@ import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
 import edu.byu.cs.tweeter.model.net.response.GetCountResponse;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
-import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
+import edu.byu.cs.tweeter.server.queue.PostStatusQueue;
+import edu.byu.cs.tweeter.server.queue.UpdateFeedQueue;
 
 /**
  * Contains the business logic for getting the users a user is following.
  */
 public class FollowService extends Service {
+    private static final int BATCH_SIZE = 25;
+    private static final String QUEUE_URL = "https://sqs.us-west-2.amazonaws.com/938404099055/UpdateFeedQueue";
+
     private IFollowDAO followDAO;
     private IUserDAO userDAO;
     private final DAOFactory factory;
@@ -150,5 +155,35 @@ public class FollowService extends Service {
         boolean isFollower = getFollowDAO().isFollower(request);
 
         return new IsFollowerResponse(true, isFollower);
+    }
+
+    public void getFollowersToUpdateFeed(String messageBody) {
+        GetFollowersResponse getFollowersResponse;
+        List<User> followersBatch;
+
+        PostStatusQueue queueData = deserializeQueue(messageBody, PostStatusQueue.class);
+        User sender = queueData.getSender();
+        Status post = queueData.getPost();
+        long currentTime = queueData.getCurrentTime();
+        String senderAlias = sender.getAlias();
+
+        String lastFollowerAlias = null;
+        boolean hasMorePages = true;
+
+        GetFollowersRequest getFollowersRequest = new GetFollowersRequest(null, senderAlias, BATCH_SIZE, lastFollowerAlias);
+        UpdateFeedQueue queue = new UpdateFeedQueue(sender, post, currentTime, null);
+        while (hasMorePages) {
+            //gets followers (paged) for the user that posted the status
+            getFollowersResponse = getFollowDAO().getFollowers(getFollowersRequest);
+
+            //puts batch messages on the next queue
+            followersBatch = getFollowersResponse.getFollowers();
+            queue.setFollowers(followersBatch);
+            sendMessageToQueue(queue, QUEUE_URL);
+
+            lastFollowerAlias = followersBatch.get(followersBatch.size() - 1).getAlias();
+            hasMorePages = getFollowersResponse.getHasMorePages();
+            getFollowersRequest.setLastFollowerAlias(lastFollowerAlias);
+        }
     }
 }

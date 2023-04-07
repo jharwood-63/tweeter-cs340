@@ -1,8 +1,12 @@
 package edu.byu.cs.tweeter.server.service;
 
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
+import com.amazonaws.services.sqs.model.SendMessageResult;
+
 import java.util.List;
 
-import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
@@ -12,12 +16,13 @@ import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.model.net.response.PostStatusResponse;
 import edu.byu.cs.tweeter.server.dao.DAOFactory;
 import edu.byu.cs.tweeter.server.dao.IFeedDAO;
-import edu.byu.cs.tweeter.server.dao.IFollowDAO;
 import edu.byu.cs.tweeter.server.dao.IStoryDAO;
-import edu.byu.cs.tweeter.util.FakeData;
-import edu.byu.cs.tweeter.util.Pair;
+import edu.byu.cs.tweeter.server.queue.PostStatusQueue;
+import edu.byu.cs.tweeter.server.queue.UpdateFeedQueue;
 
 public class StatusService extends Service {
+    private static final String QUEUE_URL = "https://sqs.us-west-2.amazonaws.com/938404099055/PostStatusQueue";
+
     private IStoryDAO storyDAO;
     private IFeedDAO feedDAO;
     private final DAOFactory factory;
@@ -42,7 +47,7 @@ public class StatusService extends Service {
         return feedDAO;
     }
 
-    public PostStatusResponse postStatus(PostStatusRequest request) {
+    public PostStatusResponse postStatusToStory(PostStatusRequest request) {
         if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
@@ -50,19 +55,23 @@ public class StatusService extends Service {
             throw new RuntimeException("[Bad Request] Request must have a post");
         }
 
-        // All of the follow and feed stuff will get moved somewhere else
-        // All that will be done here is posting the status to the story and putting the request on the queue
-        // Then it will return
         long currentTime = System.currentTimeMillis();
-        IFollowDAO followDAO = factory.getFollowDAO();
-        List<User> followers = followDAO.getAllFollowers(request.getStatus().getUser().getAlias());
-        getFeedDAO().postStatusToFeed(request, currentTime, followers);
-
-        // Do this and then...
+        // Post the status to the story
         getStoryDAO().postStatusToStory(request, currentTime);
-        // write to the queue and then...
+        // Write to the queue post status queue
+        PostStatusQueue queue = new PostStatusQueue(request.getStatus().getUser(), request.getStatus(), currentTime);
+        sendMessageToQueue(queue, QUEUE_URL);
+
         // return true
         return new PostStatusResponse(true);
+    }
+
+    public void updateFeed(String messageBody) {
+        //posts the status to the feed of the followers in each batch
+        UpdateFeedQueue queueData = deserializeQueue(messageBody, UpdateFeedQueue.class);
+
+        PostStatusRequest feedUpdateRequest = new PostStatusRequest(null, queueData.getPost());
+        getFeedDAO().postStatusToFeed(feedUpdateRequest, queueData.getCurrentTime(), queueData.getFollowers());
     }
 
     public GetFeedResponse getFeed(GetFeedRequest request) {

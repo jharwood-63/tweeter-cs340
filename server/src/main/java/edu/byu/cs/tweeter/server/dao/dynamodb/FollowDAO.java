@@ -112,35 +112,35 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
         return response;
     }
 
-    @Override
-    public List<User> getAllFollowers(String followeeAlias) {
-        boolean hasMorePages = true;
-        String lastFollowerAlias = null;
-        List<User> followers = new ArrayList<>();
-
-        while (hasMorePages) {
-            AtomicBoolean more = new AtomicBoolean(false);
-            QueryEnhancedRequest queryRequest = createPagedQueryRequest(followeeAlias, PAGE_SIZE,
-                    lastFollowerAlias, FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
-
-            SdkIterable<Page<FollowDTO>> sdkIterable = getFollowIndex().query(queryRequest);
-            PageIterable<FollowDTO> pages = PageIterable.create(sdkIterable);
-            pages.stream()
-                    .limit(1)
-                    .forEach((Page<FollowDTO> page) -> {
-                        more.set(page.lastEvaluatedKey() != null);
-                        page.items().forEach(followDTO -> followers.add(followDTO.convertFolloweeToUser()));
-                    });
-
-            if (followers.size() > 0) {
-                lastFollowerAlias = followers.get(followers.size() - 1).getAlias();
-            }
-
-            hasMorePages = more.get();
-        }
-
-        return followers;
-    }
+//    @Override
+//    public List<User> getFollowersForFeedUpdateQueue(String followeeAlias) {
+//        boolean hasMorePages = true;
+//        String lastFollowerAlias = null;
+//        List<User> followers = new ArrayList<>();
+//
+//        while (hasMorePages) {
+//            AtomicBoolean more = new AtomicBoolean(false);
+//            QueryEnhancedRequest queryRequest = createPagedQueryRequest(followeeAlias, PAGE_SIZE,
+//                    lastFollowerAlias, FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
+//
+//            SdkIterable<Page<FollowDTO>> sdkIterable = getFollowIndex().query(queryRequest);
+//            PageIterable<FollowDTO> pages = PageIterable.create(sdkIterable);
+//            pages.stream()
+//                    .limit(1)
+//                    .forEach((Page<FollowDTO> page) -> {
+//                        more.set(page.lastEvaluatedKey() != null);
+//                        page.items().forEach(followDTO -> followers.add(followDTO.convertFolloweeToUser()));
+//                    });
+//
+//            if (followers.size() > 0) {
+//                lastFollowerAlias = followers.get(followers.size() - 1).getAlias();
+//            }
+//
+//            hasMorePages = more.get();
+//        }
+//
+//        return followers;
+//    }
 
     private QueryEnhancedRequest createPagedQueryRequest(String targetUserAlias, int pageSize, String lastUserAlias, String partitionKey, String sortKey) {
         Key key = Key.builder()

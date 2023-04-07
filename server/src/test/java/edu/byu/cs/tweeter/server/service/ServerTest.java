@@ -77,13 +77,13 @@ public class ServerTest {
         StatusService statusService = new StatusService(new DynamoDAOFactory());
 
         User user = new User("James", "Talmage", "@jt", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40jt");
-        PostStatusRequest request = new PostStatusRequest(authToken, new Status("first post", user, Long.toString(System.currentTimeMillis()), new ArrayList<String>() {{
+        PostStatusRequest request = new PostStatusRequest(authToken, new Status("TEST POST", user, Long.toString(System.currentTimeMillis()), new ArrayList<String>() {{
             add("https://youtube.com");
         }}, new ArrayList<String>() {{
             add("@Dude1");
         }}));
 
-//        authTokenDAO.login(authToken);
+        authTokenDAO.login(authToken);
         statusService.postStatusToStory(request);
     }
 

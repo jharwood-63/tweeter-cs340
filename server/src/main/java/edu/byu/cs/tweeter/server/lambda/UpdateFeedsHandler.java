@@ -9,18 +9,13 @@ public class UpdateFeedsHandler extends BaseStatusHandler implements RequestHand
     //uses statusService and feedDAO
     @Override
     public Void handleRequest(SQSEvent input, Context context) {
-        String messageBody = null;
         for (SQSEvent.SQSMessage msg : input.getRecords()) {
-            messageBody = msg.getBody();
+            String messageBody = msg.getBody();
             System.out.println(messageBody);
-        }
 
-        if (messageBody != null) {
             getService().updateFeed(messageBody);
         }
-        else {
-            throw new RuntimeException("There is no message");
-        }
+
         return null;
     }
 }

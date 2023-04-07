@@ -23,6 +23,7 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.LoginResponse;
 import edu.byu.cs.tweeter.server.dao.dynamodb.AuthTokenDAO;
+import edu.byu.cs.tweeter.server.dao.dynamodb.DynamoDAOFactory;
 import edu.byu.cs.tweeter.server.dao.dynamodb.FollowDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.StoryDAO;
 import edu.byu.cs.tweeter.server.dao.dynamodb.UserDAO;
@@ -73,7 +74,7 @@ public class ServerTest {
     public void testPostStatus() {
         AuthToken authToken = new AuthToken("This is a token", Long.toString(System.currentTimeMillis()));
         AuthTokenDAO authTokenDAO = new AuthTokenDAO();
-        StatusService statusService = new StatusService();
+        StatusService statusService = new StatusService(new DynamoDAOFactory());
 
         User user = new User("James", "Talmage", "@jt", "https://tweeterm4340.s3.us-west-2.amazonaws.com/%40jt");
         PostStatusRequest request = new PostStatusRequest(authToken, new Status("first post", user, Long.toString(System.currentTimeMillis()), new ArrayList<String>() {{
@@ -97,7 +98,7 @@ public class ServerTest {
             add("@Dude1");
         }});
         GetFeedRequest request = new GetFeedRequest(authToken, "@Jackson", 5, null);
-        StatusService statusService = new StatusService();
+        StatusService statusService = new StatusService(new DynamoDAOFactory());
         statusService.getFeed(request);
     }
 
@@ -105,7 +106,7 @@ public class ServerTest {
     public void testLogin() {
         User expectedUser = new User("Jack", "Hale", "@jman", "https://tweeter4340.s3.us-west-2.amazonaws.com/%40jman");
         LoginRequest request = new LoginRequest("@jman", "password");
-        UserService userService = new UserService();
+        UserService userService = new UserService(new DynamoDAOFactory());
 
         LoginResponse response = userService.login(request);
 
@@ -122,7 +123,7 @@ public class ServerTest {
         authTokenDAO.login(authToken);
 
         UnfollowRequest unfollowRequest = new UnfollowRequest(authToken, james, brigham);
-        FollowService followService = new FollowService();
+        FollowService followService = new FollowService(new DynamoDAOFactory());
         followService.unfollow(unfollowRequest);
     }
 
@@ -136,7 +137,7 @@ public class ServerTest {
         authTokenDAO.login(authToken);
 
         FollowRequest followRequest = new FollowRequest(authToken, james, brigham);
-        FollowService followService = new FollowService();
+        FollowService followService = new FollowService(new DynamoDAOFactory());
         followService.follow(followRequest);
     }
 
@@ -148,7 +149,7 @@ public class ServerTest {
         authTokenDAO.login(authToken);
 
         GetCountRequest request = new GetCountRequest(authToken, james.getAlias());
-        FollowService followService = new FollowService();
+        FollowService followService = new FollowService(new DynamoDAOFactory());
 
         GetCountResponse followingCountResponse = followService.getFollowingCount(request);
         System.out.println("Following count: " + followingCountResponse.getCount());
@@ -166,7 +167,7 @@ public class ServerTest {
         authTokenDAO.login(authToken);
 
         IsFollowerRequest request = new IsFollowerRequest(authToken, james.getAlias(), brigham.getAlias());
-        FollowService followService = new FollowService();
+        FollowService followService = new FollowService(new DynamoDAOFactory());
         IsFollowerResponse response = followService.isFollower(request);
 
         System.out.println(response.getIsFollower());

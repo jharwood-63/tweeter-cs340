@@ -1,11 +1,11 @@
-package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
+package edu.byu.cs.tweeter.server.dto;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @DynamoDbBean
-public class UserBean {
+public class UserDTO {
     private String alias;
     private String firstName;
     private String lastName;

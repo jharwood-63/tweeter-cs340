@@ -1,10 +1,10 @@
-package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
+package edu.byu.cs.tweeter.server.dto;
 
 import edu.byu.cs.tweeter.model.domain.User;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.*;
 
 @DynamoDbBean
-public class FollowBean {
+public class FollowDTO {
     private static final String FOLLOWS_INDEX_NAME = "follow_index";
     private String follow_handle;
     private String follow_name;

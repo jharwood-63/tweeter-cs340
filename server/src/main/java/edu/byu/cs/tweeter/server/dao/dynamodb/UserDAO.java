@@ -8,34 +8,37 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
-import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetUserRequest;
 import edu.byu.cs.tweeter.model.net.request.LoginRequest;
-import edu.byu.cs.tweeter.model.net.request.LogoutRequest;
 import edu.byu.cs.tweeter.model.net.request.RegisterRequest;
 import edu.byu.cs.tweeter.server.dao.IUserDAO;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.FollowBean;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.UserBean;
+import edu.byu.cs.tweeter.server.dto.UserDTO;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 public class UserDAO extends DAOUtils implements IUserDAO {
     private static final String USER_TABLE_NAME = "user";
     private static final String USER_PARTITION_KEY = "alias";
-    private DynamoDbTable<UserBean> userTable;
+    private static final int BATCH_SIZE = 25;
+    private DynamoDbTable<UserDTO> userTable;
 
-    private DynamoDbTable<UserBean> getUserTable() {
+    private DynamoDbTable<UserDTO> getUserTable() {
         if (userTable == null) {
-            userTable = getEnhancedClient().table(USER_TABLE_NAME, TableSchema.fromBean(UserBean.class));
+            userTable = getEnhancedClient().table(USER_TABLE_NAME, TableSchema.fromBean(UserDTO.class));
         }
 
         return userTable;
@@ -48,7 +51,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
         String salt = getSalt();
         String securePassword = getSecurePassword(request.getPassword(), salt);
 
-        UserBean user = new UserBean();
+        UserDTO user = new UserDTO();
         user.setAlias(request.getUsername());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -65,7 +68,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     @Override
     public User login(LoginRequest request) {
         Key key = Key.builder().partitionValue(request.getUsername()).build();
-        UserBean user = getUserTable().getItem(key);
+        UserDTO user = getUserTable().getItem(key);
 
         if (user != null) {
             String secureSuppliedPassword = getSecurePassword(request.getPassword(), user.getSalt());
@@ -86,7 +89,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
     @Override
     public void decrementFollowersCount(String followeeAlias) {
-        UserBean user = getUserBean(followeeAlias);
+        UserDTO user = getUserBean(followeeAlias);
         int followersCount = user.getFollowersCount();
 
         if (followersCount != 0) {
@@ -98,7 +101,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
     @Override
     public void incrementFollowersCount(String followeeAlias) {
-        UserBean user = getUserBean(followeeAlias);
+        UserDTO user = getUserBean(followeeAlias);
         int followersCount = user.getFollowersCount();
 
         followersCount++;
@@ -108,7 +111,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
     @Override
     public void decrementFollowingCount(String followerAlias) {
-        UserBean user = getUserBean(followerAlias);
+        UserDTO user = getUserBean(followerAlias);
         int followingCount = user.getFollowingCount();
 
         if (followingCount != 0) {
@@ -120,7 +123,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
 
     @Override
     public void incrementFollowingCount(String followerAlias) {
-        UserBean user = getUserBean(followerAlias);
+        UserDTO user = getUserBean(followerAlias);
         int followingCount = user.getFollowingCount();
 
         followingCount++;
@@ -137,6 +140,50 @@ public class UserDAO extends DAOUtils implements IUserDAO {
     @Override
     public int getFollowersCount(String userAlias) {
         return getUserBean(userAlias).getFollowersCount();
+    }
+
+    @Override
+    public void addUserBatch(List<UserDTO> users) {
+        List<UserDTO> batch = new ArrayList<>();
+        for (UserDTO user : users) {
+            batch.add(user);
+
+            if (batch.size() > 25) {
+                writeBatchOfUserDTOs(batch);
+                batch = new ArrayList<>();
+            }
+        }
+
+        if (batch.size() > 0) {
+            writeBatchOfUserDTOs(batch);
+        }
+    }
+
+    private void writeBatchOfUserDTOs(List<UserDTO> batch) {
+        if(batch.size() > 25) {
+            throw new RuntimeException("Too many users to write");
+        }
+
+        WriteBatch.Builder<UserDTO> writeBuilder = WriteBatch.builder(UserDTO.class).mappedTableResource(getUserTable());
+        for (UserDTO user : batch) {
+            writeBuilder.addPutItem(builder -> builder.item(user));
+        }
+
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = getEnhancedClient().batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(getUserTable()).size() > 0) {
+                writeBatchOfUserDTOs(result.unprocessedPutItemsForTable(getUserTable()));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     private String getSecurePassword(String password, String salt) {
@@ -170,7 +217,7 @@ public class UserDAO extends DAOUtils implements IUserDAO {
         }
     }
 
-    private UserBean getUserBean(String alias) {
+    private UserDTO getUserBean(String alias) {
         Key key = Key.builder().partitionValue(alias).build();
         return getUserTable().getItem(key);
     }

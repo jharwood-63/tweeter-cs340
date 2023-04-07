@@ -14,19 +14,23 @@ import edu.byu.cs.tweeter.model.net.request.IsFollowerRequest;
 import edu.byu.cs.tweeter.model.net.request.UnfollowRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
-import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.server.dao.IFollowDAO;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.FollowBean;
+import edu.byu.cs.tweeter.server.dto.FollowDTO;
+import edu.byu.cs.tweeter.server.dto.UserDTO;
 import software.amazon.awssdk.core.pagination.sync.SdkIterable;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbIndex;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteItemEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.BatchWriteResult;
 import software.amazon.awssdk.enhanced.dynamodb.model.Page;
 import software.amazon.awssdk.enhanced.dynamodb.model.PageIterable;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryConditional;
 import software.amazon.awssdk.enhanced.dynamodb.model.QueryEnhancedRequest;
+import software.amazon.awssdk.enhanced.dynamodb.model.WriteBatch;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
 
 /**
  * A DAO for accessing 'following' data from the database.
@@ -40,20 +44,20 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
     private static final int PAGE_SIZE = 20;
 
-    private DynamoDbTable<FollowBean> followTable;
-    private DynamoDbIndex<FollowBean> followIndex;
+    private DynamoDbTable<FollowDTO> followTable;
+    private DynamoDbIndex<FollowDTO> followIndex;
 
-    private DynamoDbTable<FollowBean> getFollowTable() {
+    private DynamoDbTable<FollowDTO> getFollowTable() {
         if (followTable == null) {
-            followTable = getEnhancedClient().table(FOLLOWS_TABLE_NAME, TableSchema.fromBean(FollowBean.class));
+            followTable = getEnhancedClient().table(FOLLOWS_TABLE_NAME, TableSchema.fromBean(FollowDTO.class));
         }
 
         return followTable;
     }
 
-    private DynamoDbIndex<FollowBean> getFollowIndex() {
+    private DynamoDbIndex<FollowDTO> getFollowIndex() {
         if (followIndex == null) {
-            followIndex = getEnhancedClient().table(FOLLOWS_TABLE_NAME, TableSchema.fromBean(FollowBean.class)).index(FOLLOWS_INDEX_NAME);
+            followIndex = getEnhancedClient().table(FOLLOWS_TABLE_NAME, TableSchema.fromBean(FollowDTO.class)).index(FOLLOWS_INDEX_NAME);
         }
 
         return followIndex;
@@ -75,10 +79,10 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
         GetFollowingResponse response = new GetFollowingResponse(new ArrayList<>(), false);
 
-        PageIterable<FollowBean> pages = getFollowTable().query(queryRequest);
+        PageIterable<FollowDTO> pages = getFollowTable().query(queryRequest);
         pages.stream()
                 .limit(1)
-                .forEach((Page<FollowBean> page) -> {
+                .forEach((Page<FollowDTO> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
                     page.items().forEach(followee -> response.getFollowees().add(followee.convertFollowerToUser()));
                 });
@@ -96,13 +100,13 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
         GetFollowersResponse response = new GetFollowersResponse(new ArrayList<>(), false);
 
-        SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
-        PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
+        SdkIterable<Page<FollowDTO>> sdkIterable = getFollowIndex().query(queryRequest);
+        PageIterable<FollowDTO> pages = PageIterable.create(sdkIterable);
         pages.stream()
                 .limit(1)
-                .forEach((Page<FollowBean> page) -> {
+                .forEach((Page<FollowDTO> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
-                    page.items().forEach(followBean -> response.getFollowers().add(followBean.convertFolloweeToUser()));
+                    page.items().forEach(followDTO -> response.getFollowers().add(followDTO.convertFolloweeToUser()));
                 });
 
         return response;
@@ -119,13 +123,13 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
             QueryEnhancedRequest queryRequest = createPagedQueryRequest(followeeAlias, PAGE_SIZE,
                     lastFollowerAlias, FOLLOWS_SORT_KEY, FOLLOWS_PARTITION_KEY);
 
-            SdkIterable<Page<FollowBean>> sdkIterable = getFollowIndex().query(queryRequest);
-            PageIterable<FollowBean> pages = PageIterable.create(sdkIterable);
+            SdkIterable<Page<FollowDTO>> sdkIterable = getFollowIndex().query(queryRequest);
+            PageIterable<FollowDTO> pages = PageIterable.create(sdkIterable);
             pages.stream()
                     .limit(1)
-                    .forEach((Page<FollowBean> page) -> {
+                    .forEach((Page<FollowDTO> page) -> {
                         more.set(page.lastEvaluatedKey() != null);
-                        page.items().forEach(followBean -> followers.add(followBean.convertFolloweeToUser()));
+                        page.items().forEach(followDTO -> followers.add(followDTO.convertFolloweeToUser()));
                     });
 
             if (followers.size() > 0) {
@@ -170,15 +174,15 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
 
     @Override
     public void follow(FollowRequest request) {
-        FollowBean followBean = new FollowBean();
-        followBean.setFollow_handle(request.getFollower().getAlias());
-        followBean.setFollow_name(request.getFollower().getName());
-        followBean.setFollow_image(request.getFollower().getImageUrl());
-        followBean.setFollowee_handle(request.getFollowee().getAlias());
-        followBean.setFollowee_name(request.getFollowee().getName());
-        followBean.setFollowee_image(request.getFollowee().getImageUrl());
+        FollowDTO followDTO = new FollowDTO();
+        followDTO.setFollow_handle(request.getFollower().getAlias());
+        followDTO.setFollow_name(request.getFollower().getName());
+        followDTO.setFollow_image(request.getFollower().getImageUrl());
+        followDTO.setFollowee_handle(request.getFollowee().getAlias());
+        followDTO.setFollowee_name(request.getFollowee().getName());
+        followDTO.setFollowee_image(request.getFollowee().getImageUrl());
 
-        getFollowTable().putItem(followBean);
+        getFollowTable().putItem(followDTO);
     }
 
     // am I following them?
@@ -189,9 +193,53 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
                 .sortValue(request.getFolloweeAlias())
                 .build();
 
-        FollowBean follow = getFollowTable().getItem(key);
+        FollowDTO follow = getFollowTable().getItem(key);
 
         return follow != null;
+    }
+
+    @Override
+    public void addFollowersBatch(List<FollowDTO> followers) {
+        List<FollowDTO> batch = new ArrayList<>();
+        for (FollowDTO follower : followers) {
+            batch.add(follower);
+
+            if (batch.size() > 25) {
+                writeBatchOfFollowDTOs(batch);
+                batch = new ArrayList<>();
+            }
+        }
+
+        if (batch.size() > 0) {
+            writeBatchOfFollowDTOs(batch);
+        }
+    }
+
+    private void writeBatchOfFollowDTOs(List<FollowDTO> batch) {
+        if(batch.size() > 25) {
+            throw new RuntimeException("Too many followers to write");
+        }
+
+        WriteBatch.Builder<FollowDTO> writeBuilder = WriteBatch.builder(FollowDTO.class).mappedTableResource(getFollowTable());
+        for (FollowDTO follower : batch) {
+            writeBuilder.addPutItem(builder -> builder.item(follower));
+        }
+
+        BatchWriteItemEnhancedRequest batchWriteItemEnhancedRequest = BatchWriteItemEnhancedRequest.builder()
+                .writeBatches(writeBuilder.build()).build();
+
+        try {
+            BatchWriteResult result = getEnhancedClient().batchWriteItem(batchWriteItemEnhancedRequest);
+
+            // just hammer dynamodb again with anything that didn't get written this time
+            if (result.unprocessedPutItemsForTable(getFollowTable()).size() > 0) {
+                writeBatchOfFollowDTOs(result.unprocessedPutItemsForTable(getFollowTable()));
+            }
+
+        } catch (DynamoDbException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
     }
 
     private static boolean isNonEmptyString(String value) {

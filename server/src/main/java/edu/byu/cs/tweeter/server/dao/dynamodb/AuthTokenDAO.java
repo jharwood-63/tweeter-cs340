@@ -2,17 +2,17 @@ package edu.byu.cs.tweeter.server.dao.dynamodb;
 
 import edu.byu.cs.tweeter.model.domain.AuthToken;
 import edu.byu.cs.tweeter.server.dao.IAuthTokenDAO;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.AuthTokenBean;
+import edu.byu.cs.tweeter.server.dto.AuthTokenDTO;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 public class AuthTokenDAO extends DAOUtils implements IAuthTokenDAO {
     private static final String AUTHTOKEN_TABLE_NAME = "AuthToken";
-    private DynamoDbTable<AuthTokenBean> authTokenTable;
-    private DynamoDbTable<AuthTokenBean> getAuthTokenTable() {
+    private DynamoDbTable<AuthTokenDTO> authTokenTable;
+    private DynamoDbTable<AuthTokenDTO> getAuthTokenTable() {
         if (authTokenTable == null) {
-            authTokenTable = getEnhancedClient().table(AUTHTOKEN_TABLE_NAME, TableSchema.fromBean(AuthTokenBean.class));
+            authTokenTable = getEnhancedClient().table(AUTHTOKEN_TABLE_NAME, TableSchema.fromBean(AuthTokenDTO.class));
         }
 
         return authTokenTable;
@@ -30,11 +30,11 @@ public class AuthTokenDAO extends DAOUtils implements IAuthTokenDAO {
 
     @Override
     public void login(AuthToken authToken) {
-        AuthTokenBean authTokenBean = new AuthTokenBean();
-        authTokenBean.setDatetime(authToken.getDatetime());
-        authTokenBean.setToken(authToken.getToken());
+        AuthTokenDTO authTokenDTO = new AuthTokenDTO();
+        authTokenDTO.setDatetime(authToken.getDatetime());
+        authTokenDTO.setToken(authToken.getToken());
 
-        getAuthTokenTable().putItem(authTokenBean);
+        getAuthTokenTable().putItem(authTokenDTO);
     }
 
     @Override
@@ -46,10 +46,10 @@ public class AuthTokenDAO extends DAOUtils implements IAuthTokenDAO {
     private boolean compareAuthToken(String token) {
         Key key = Key.builder().partitionValue(token).build();
 
-        AuthTokenBean authTokenBean = getAuthTokenTable().getItem(key);
+        AuthTokenDTO authTokenDTO = getAuthTokenTable().getItem(key);
 
-        if (authTokenBean != null) {
-            resetTimeStamp(authTokenBean);
+        if (authTokenDTO != null) {
+            resetTimeStamp(authTokenDTO);
             return true;
         }
         else {
@@ -57,8 +57,8 @@ public class AuthTokenDAO extends DAOUtils implements IAuthTokenDAO {
         }
     }
 
-    private void resetTimeStamp(AuthTokenBean authTokenBean) {
-        authTokenBean.setDatetime(Long.toString(System.currentTimeMillis()));
-        getAuthTokenTable().updateItem(authTokenBean);
+    private void resetTimeStamp(AuthTokenDTO authTokenDTO) {
+        authTokenDTO.setDatetime(Long.toString(System.currentTimeMillis()));
+        getAuthTokenTable().updateItem(authTokenDTO);
     }
 }

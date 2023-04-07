@@ -13,6 +13,7 @@ import edu.byu.cs.tweeter.model.net.response.GetFollowersResponse;
 import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.model.net.response.IsFollowerResponse;
 import edu.byu.cs.tweeter.model.net.response.UnfollowResponse;
+import edu.byu.cs.tweeter.server.dto.FollowDTO;
 
 public interface IFollowDAO {
     GetFollowingResponse getFollowing(GetFollowingRequest request);
@@ -21,4 +22,5 @@ public interface IFollowDAO {
     void unfollow(UnfollowRequest request);
     void follow(FollowRequest request);
     boolean isFollower(IsFollowerRequest request);
+    void addFollowersBatch(List<FollowDTO> followers);
 }

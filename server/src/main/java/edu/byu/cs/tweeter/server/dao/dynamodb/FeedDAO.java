@@ -5,16 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.byu.cs.tweeter.model.domain.Status;
 import edu.byu.cs.tweeter.model.domain.User;
 import edu.byu.cs.tweeter.model.net.request.GetFeedRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetFeedResponse;
-import edu.byu.cs.tweeter.model.net.response.GetFollowingResponse;
 import edu.byu.cs.tweeter.server.dao.IFeedDAO;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.FeedBean;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.FollowBean;
-import software.amazon.awssdk.core.pagination.sync.SdkIterable;
+import edu.byu.cs.tweeter.server.dto.FeedDTO;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -29,11 +25,11 @@ public class FeedDAO extends DAOUtils implements IFeedDAO {
     private static final String FEED_PARTITION_KEY = "receiverAlias";
     private static final String FEED_SORT_KEY = "timestamp";
 
-    private DynamoDbTable<FeedBean> feedTable;
+    private DynamoDbTable<FeedDTO> feedTable;
 
-    private DynamoDbTable<FeedBean> getFeedTable() {
+    private DynamoDbTable<FeedDTO> getFeedTable() {
         if (feedTable == null) {
-            feedTable = getEnhancedClient().table(FEED_TABLE_NAME, TableSchema.fromBean(FeedBean.class));
+            feedTable = getEnhancedClient().table(FEED_TABLE_NAME, TableSchema.fromBean(FeedDTO.class));
         }
 
         return feedTable;
@@ -41,7 +37,7 @@ public class FeedDAO extends DAOUtils implements IFeedDAO {
 
     @Override
     public void postStatusToFeed(PostStatusRequest request, long currentTime, List<User> followers) {
-        FeedBean newPost = new FeedBean();
+        FeedDTO newPost = new FeedDTO();
         for (User follower : followers) {
             newPost.setReceiverAlias(follower.getAlias());
             newPost.setTimestamp(currentTime);
@@ -71,12 +67,12 @@ public class FeedDAO extends DAOUtils implements IFeedDAO {
 
         GetFeedResponse response = new GetFeedResponse(new ArrayList<>(), false);
 
-        PageIterable<FeedBean> pages = getFeedTable().query(queryRequest);
+        PageIterable<FeedDTO> pages = getFeedTable().query(queryRequest);
         pages.stream()
                 .limit(1)
-                .forEach((Page<FeedBean> page) -> {
+                .forEach((Page<FeedDTO> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
-                    page.items().forEach(feedBean -> response.getFeedPage().add(feedBean.convertFeedToStatus()));
+                    page.items().forEach(feedDTO -> response.getFeedPage().add(feedDTO.convertFeedToStatus()));
                 });
 
         return response;

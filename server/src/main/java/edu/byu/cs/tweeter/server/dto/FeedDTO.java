@@ -1,4 +1,4 @@
-package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
+package edu.byu.cs.tweeter.server.dto;
 
 import java.util.List;
 
@@ -9,23 +9,24 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbParti
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortKey;
 
 @DynamoDbBean
-public class StoryBean {
-    private String senderAlias;
+public class FeedDTO {
+    private String receiverAlias;
     private long timestamp;
     private String post;
     private List<String> urls;
     private List<String> mentions;
+    private String senderAlias;
     private String senderFirstName;
     private String senderLastName;
     private String senderImage;
 
     @DynamoDbPartitionKey
-    public String getSenderAlias() {
-        return senderAlias;
+    public String getReceiverAlias() {
+        return receiverAlias;
     }
 
-    public void setSenderAlias(String senderAlias) {
-        this.senderAlias = senderAlias;
+    public void setReceiverAlias(String receiverAlias) {
+        this.receiverAlias = receiverAlias;
     }
 
     @DynamoDbSortKey
@@ -61,6 +62,14 @@ public class StoryBean {
         this.mentions = mentions;
     }
 
+    public String getSenderAlias() {
+        return senderAlias;
+    }
+
+    public void setSenderAlias(String senderAlias) {
+        this.senderAlias = senderAlias;
+    }
+
     public String getSenderFirstName() {
         return senderFirstName;
     }
@@ -85,8 +94,8 @@ public class StoryBean {
         this.senderImage = senderImage;
     }
 
-    public Status convertStoryToStatus() {
-        User user = new User(this.getSenderFirstName(), this.getSenderLastName(), this.getSenderAlias(), this.getSenderImage());
-        return new Status(this.getPost(), user, String.valueOf(this.getTimestamp()), this.getUrls(), this.getMentions());
+    public Status convertFeedToStatus() {
+        User senderUser = new User(this.getSenderFirstName(), this.getSenderLastName(), this.getSenderAlias(), this.getSenderImage());
+        return new Status(this.getPost(), senderUser, String.valueOf(this.getTimestamp()), this.getUrls(), this.getMentions());
     }
 }

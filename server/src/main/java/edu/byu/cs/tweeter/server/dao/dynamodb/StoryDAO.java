@@ -8,7 +8,7 @@ import edu.byu.cs.tweeter.model.net.request.GetStoryRequest;
 import edu.byu.cs.tweeter.model.net.request.PostStatusRequest;
 import edu.byu.cs.tweeter.model.net.response.GetStoryResponse;
 import edu.byu.cs.tweeter.server.dao.IStoryDAO;
-import edu.byu.cs.tweeter.server.dao.dynamodb.bean.StoryBean;
+import edu.byu.cs.tweeter.server.dto.StoryDTO;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
@@ -23,11 +23,11 @@ public class StoryDAO extends DAOUtils implements IStoryDAO {
     private static final String STORY_PARTITION_KEY = "senderAlias";
     private static final String STORY_SORT_KEY = "timestamp";
 
-    private DynamoDbTable<StoryBean> storyTable;
+    private DynamoDbTable<StoryDTO> storyTable;
 
-    private DynamoDbTable<StoryBean> getStoryTable() {
+    private DynamoDbTable<StoryDTO> getStoryTable() {
         if (storyTable == null) {
-            storyTable = getEnhancedClient().table(STORY_TABLE_NAME, TableSchema.fromBean(StoryBean.class));
+            storyTable = getEnhancedClient().table(STORY_TABLE_NAME, TableSchema.fromBean(StoryDTO.class));
         }
 
         return storyTable;
@@ -35,7 +35,7 @@ public class StoryDAO extends DAOUtils implements IStoryDAO {
 
     @Override
     public void postStatusToStory(PostStatusRequest request, long currentTime) {
-        StoryBean newPost = new StoryBean();
+        StoryDTO newPost = new StoryDTO();
         newPost.setSenderAlias(request.getStatus().getUser().getAlias());
         newPost.setTimestamp(currentTime);
         newPost.setPost(request.getStatus().getPost());
@@ -62,12 +62,12 @@ public class StoryDAO extends DAOUtils implements IStoryDAO {
 
         GetStoryResponse response = new GetStoryResponse(new ArrayList<>(), false);
 
-        PageIterable<StoryBean> pages = getStoryTable().query(queryRequest);
+        PageIterable<StoryDTO> pages = getStoryTable().query(queryRequest);
         pages.stream()
                 .limit(1)
-                .forEach((Page<StoryBean> page) -> {
+                .forEach((Page<StoryDTO> page) -> {
                     response.setHasMorePages(page.lastEvaluatedKey() != null);
-                    page.items().forEach(storyBean -> response.getStoryPage().add(storyBean.convertStoryToStatus()));
+                    page.items().forEach(storyDTO -> response.getStoryPage().add(storyDTO.convertStoryToStatus()));
                 });
 
         return response;

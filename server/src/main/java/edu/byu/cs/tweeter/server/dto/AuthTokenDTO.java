@@ -1,10 +1,10 @@
-package edu.byu.cs.tweeter.server.dao.dynamodb.bean;
+package edu.byu.cs.tweeter.server.dto;
 
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
 @DynamoDbBean
-public class AuthTokenBean {
+public class AuthTokenDTO {
     private String token;
     private String datetime;
 

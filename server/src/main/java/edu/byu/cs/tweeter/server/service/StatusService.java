@@ -48,19 +48,29 @@ public class StatusService extends Service {
     }
 
     public PostStatusResponse postStatusToStory(PostStatusRequest request) {
+        // FIXME: Make this faster
+        long beginAuth = System.currentTimeMillis();
         if (!getAuthTokenDAO(factory).authenticateRequest(request.getAuthToken())) {
             throw new RuntimeException("[Bad Request] Unauthenticated User");
         }
-        else if (request.getStatus().getPost().equals("") || request.getStatus().getPost() == null) {
-            throw new RuntimeException("[Bad Request] Request must have a post");
-        }
+        long endAuth = System.currentTimeMillis();
+        System.out.println("Auth Time: " + (endAuth - beginAuth));
+//        else if (request.getStatus().getPost().equals("") || request.getStatus().getPost() == null) {
+//            throw new RuntimeException("[Bad Request] Request must have a post");
+//        }
 
         long currentTime = System.currentTimeMillis();
         // Post the status to the story
+        long beginPost = System.currentTimeMillis();
         getStoryDAO().postStatusToStory(request, currentTime);
+        long endPost = System.currentTimeMillis();
+        System.out.println("Post Time: " + (endPost - beginPost));
         // Write to the queue post status queue
+        long beginQueue = System.currentTimeMillis();
         PostStatusQueue queue = new PostStatusQueue(request.getStatus().getUser(), request.getStatus(), currentTime);
         sendMessageToQueue(queue, QUEUE_URL);
+        long endQueue = System.currentTimeMillis();
+        System.out.println("Queue Time: " + (endQueue - beginQueue));
 
         // return true
         return new PostStatusResponse(true);

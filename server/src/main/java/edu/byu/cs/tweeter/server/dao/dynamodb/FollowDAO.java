@@ -280,8 +280,8 @@ public class FollowDAO extends DAOUtils implements IFollowDAO {
             BatchWriteResult result = getEnhancedClient().batchWriteItem(batchWriteItemEnhancedRequest);
 
             // just hammer dynamodb again with anything that didn't get written this time
-            if (result.unprocessedPutItemsForTable(getFollowTable()).size() > 0) {
-                writeBatchOfFollowDTOs(result.unprocessedPutItemsForTable(getFollowTable()));
+            if (result.unprocessedDeleteItemsForTable(getFollowTable()).size() > 0) {
+                deleteBatchOfFollowDTOs(result.unprocessedPutItemsForTable(getFollowTable()));
             }
 
         } catch (DynamoDbException e) {

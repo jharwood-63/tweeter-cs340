@@ -108,8 +108,13 @@ public class ApiTest {
     public void testPostStatus() throws IOException, TweeterRemoteException {
         Status status = new Status("Please work", james, String.valueOf(System.currentTimeMillis()), null, null);
         PostStatusRequest request = new PostStatusRequest(authToken, status);
+        System.out.println("Begin post status");
+        long begin = System.currentTimeMillis();
         PostStatusResponse response = serverFacade.postStatus(request, "poststatus");
+        long end = System.currentTimeMillis();
 
+        System.out.println("Time: " + (end - begin));
+        Assertions.assertTrue((end - begin) < 1000);
         Assertions.assertTrue(response.isSuccess());
     }
 

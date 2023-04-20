@@ -81,7 +81,6 @@ public class ApiTest {
 
     @Test
     public void testLogin() {
-        Handler handlerMock = Mockito.mock(AuthenticateNotificationHandler.class);
         LoginTask loginTask = new LoginTask("@user", "pass", null);
         loginTask.run();
     }

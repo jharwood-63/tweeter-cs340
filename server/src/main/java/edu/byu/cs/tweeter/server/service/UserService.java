@@ -46,9 +46,6 @@ public class UserService extends Service {
         else if(request.getLastName() == null || request.getLastName().equals("")) {
             throw new RuntimeException("[Bad Request] Missing a last name");
         }
-        else if(request.getImageUrl() == null || request.getImageUrl().equals("")) {
-            throw new RuntimeException("[Bad Request] Missing an image");
-        }
 
         User user = getUserDAO().register(request);
         if (user != null) {

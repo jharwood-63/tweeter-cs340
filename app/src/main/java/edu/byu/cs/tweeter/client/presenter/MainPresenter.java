@@ -86,8 +86,6 @@ public class MainPresenter extends Presenter {
     }
 
     public void postStatus(String post) {
-        getMainView().displayMessage("Posting status...");
-
         try {
             Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
             getStatusService().postStatus(newStatus, new PostObserver());

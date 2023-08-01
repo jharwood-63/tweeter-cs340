@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
  */
 public class Service {
 
-    public static void runTask(Runnable task) {
+    protected static void runTask(Runnable task) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(task);
     }

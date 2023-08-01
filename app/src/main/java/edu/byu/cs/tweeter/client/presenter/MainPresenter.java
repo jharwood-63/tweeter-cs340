@@ -26,7 +26,7 @@ public class MainPresenter extends Presenter {
 
         void updateSelectedUserFollowingAndFollowers();
 
-        void updateFollowButton(boolean value);
+        void updateFollowButton();
 
         void setFollowButtonEnabled(boolean value);
 
@@ -49,21 +49,22 @@ public class MainPresenter extends Presenter {
         super(view);
         followService = new FollowService();
         userService = new UserService();
-        statusService = new StatusService();
+    }
+
+    protected StatusService getStatusService() {
+        if (statusService == null) {
+            statusService = new StatusService();
+        }
+
+        return statusService;
     }
     
-    private MainView getMainView() {
+    protected MainView getMainView() {
         return ((MainView) getView());
     }
 
-    @Override
-    protected String getMessagePrefix() {return null;}
-
-    @Override
-    protected String getExceptionPrefix() {return null;}
-
     public void checkIsFollower(User selectedUser) {
-        followService.isFollower(selectedUser, new IsFollowerObserver(null));
+        followService.isFollower(selectedUser, new IsFollowerObserver());
     }
 
     public void unfollow(User selectedUser) {
@@ -76,18 +77,18 @@ public class MainPresenter extends Presenter {
         followService.follow(selectedUser, new UpdateFollowStatusObserver());
     }
 
-    public void updateFollowingAndFollowers(User selectedUser) {
-        followService.updateCount(selectedUser, new UpdateCountObserver(null));
+    public void updateFollowingAndFollowersCount(User selectedUser) {
+        followService.updateFollowingAndFollowersCount(selectedUser, new UpdateCountObserver());
     }
 
     public void logout() {
-        userService.logout(new LogoutObserver(null));
+        userService.logout(new LogoutObserver());
     }
 
     public void postStatus(String post) {
         try {
             Status newStatus = new Status(post, Cache.getInstance().getCurrUser(), getFormattedDateTime(), parseURLs(post), parseMentions(post));
-            statusService.postStatus(newStatus, new PostObserver(null));
+            getStatusService().postStatus(newStatus, new PostObserver());
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage(), ex);
             getMainView().displayMessage("Failed to post the status because of exception: " + ex.getMessage());
@@ -95,14 +96,14 @@ public class MainPresenter extends Presenter {
     }
 
     // Helper Functions
-    public String getFormattedDateTime() throws ParseException {
+    private String getFormattedDateTime() throws ParseException {
         SimpleDateFormat userFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         SimpleDateFormat statusFormat = new SimpleDateFormat("MMM d yyyy h:mm aaa");
 
         return statusFormat.format(userFormat.parse(LocalDate.now().toString() + " " + LocalTime.now().toString().substring(0, 8)));
     }
 
-    public List<String> parseURLs(String post) {
+    private List<String> parseURLs(String post) {
         List<String> containedUrls = new ArrayList<>();
         for (String word : post.split("\\s")) {
             if (word.startsWith("http://") || word.startsWith("https://")) {
@@ -118,7 +119,7 @@ public class MainPresenter extends Presenter {
         return containedUrls;
     }
 
-    public int findUrlEndIndex(String word) {
+    private int findUrlEndIndex(String word) {
         if (word.contains(".com")) {
             int index = word.indexOf(".com");
             index += 4;
@@ -144,7 +145,7 @@ public class MainPresenter extends Presenter {
         }
     }
 
-    public List<String> parseMentions(String post) {
+    private List<String> parseMentions(String post) {
         List<String> containedMentions = new ArrayList<>();
 
         for (String word : post.split("\\s")) {
@@ -180,17 +181,12 @@ public class MainPresenter extends Presenter {
         @Override
         public void handleSuccess() {
             getMainView().updateSelectedUserFollowingAndFollowers();
-            getMainView().updateFollowButton(false);
+            getMainView().updateFollowButton();
             getMainView().setFollowButtonEnabled(true);
         }
     }
 
-    private class IsFollowerObserver extends Presenter implements AuthenticatedNotificationObserver<Boolean> {
-
-        public IsFollowerObserver(PresenterView view) {
-            super(view);
-        }
-
+    private class IsFollowerObserver extends PresenterObserver implements AuthenticatedNotificationObserver<Boolean> {
         @Override
         protected String getMessagePrefix() {
             return "Failed to determine following relationship: ";
@@ -207,12 +203,7 @@ public class MainPresenter extends Presenter {
         }
     }
 
-    private class UpdateCountObserver extends Presenter implements AuthenticatedNotificationObserver<Integer> {
-
-        public UpdateCountObserver(PresenterView view) {
-            super(view);
-        }
-
+    private class UpdateCountObserver extends PresenterObserver implements AuthenticatedNotificationObserver<Integer> {
         @Override
         protected String getMessagePrefix() {
             return "Failed to get followers count: ";
@@ -230,12 +221,7 @@ public class MainPresenter extends Presenter {
         }
     }
 
-    private class LogoutObserver extends Presenter implements SimpleNotificationObserver {
-
-        public LogoutObserver(PresenterView view) {
-            super(view);
-        }
-
+    private class LogoutObserver extends PresenterObserver implements SimpleNotificationObserver {
         @Override
         protected String getMessagePrefix() {
             return "Failed to logout: ";
@@ -252,12 +238,7 @@ public class MainPresenter extends Presenter {
         }
     }
 
-    private class PostObserver extends Presenter implements SimpleNotificationObserver {
-
-        public PostObserver(PresenterView view) {
-            super(view);
-        }
-
+    protected class PostObserver extends PresenterObserver implements SimpleNotificationObserver {
         @Override
         protected String getMessagePrefix() {
             return "Failed to post status: ";

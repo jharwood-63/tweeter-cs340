@@ -15,7 +15,9 @@ public class GetFollowingCountTask extends GetCountTask {
     }
 
     @Override
-    protected int runCountTask() {
-        return 20;
+    protected String getUrlPath() {
+        return "getfollowingcount";
     }
+
+
 }

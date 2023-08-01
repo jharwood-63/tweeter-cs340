@@ -7,11 +7,11 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import edu.byu.cs.tweeter.client.model.net.ServerFacade;
 import edu.byu.cs.tweeter.util.FakeData;
 
 public abstract class BackgroundTask implements Runnable {
     private static final String LOG_TAG = "BackgroundTask";
-
     public static final String SUCCESS_KEY = "success";
     public static final String MESSAGE_KEY = "message";
     public static final String EXCEPTION_KEY = "exception";
@@ -21,8 +21,15 @@ public abstract class BackgroundTask implements Runnable {
      */
     private final Handler messageHandler;
 
+    private final ServerFacade serverFacade;
+
     protected BackgroundTask(Handler messageHandler) {
         this.messageHandler = messageHandler;
+        serverFacade = new ServerFacade();
+    }
+
+    public ServerFacade getServerFacade() {
+        return serverFacade;
     }
 
     @Override
@@ -36,10 +43,6 @@ public abstract class BackgroundTask implements Runnable {
     }
 
     protected abstract void runTask() throws IOException;
-
-    protected FakeData getFakeData() {
-        return FakeData.getInstance();
-    }
 
     /**
      * Called by a Task's runTask method when it is successful.

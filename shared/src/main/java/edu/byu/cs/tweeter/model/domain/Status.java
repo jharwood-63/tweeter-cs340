@@ -1,7 +1,11 @@
 package edu.byu.cs.tweeter.model.domain;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -19,7 +23,7 @@ public class Status implements Serializable {
     /**
      * String representation of the date/time at which the status was sent.
      */
-    public String datetime;
+    public String timestamp;
     /**
      * URLs contained in the post text.
      */
@@ -32,10 +36,10 @@ public class Status implements Serializable {
     public Status() {
     }
 
-    public Status(String post, User user, String datetime, List<String> urls, List<String> mentions) {
+    public Status(String post, User user, String timestamp, List<String> urls, List<String> mentions) {
         this.post = post;
         this.user = user;
-        this.datetime = datetime;
+        this.timestamp = timestamp;
         this.urls = urls;
         this.mentions = mentions;
     }
@@ -48,10 +52,14 @@ public class Status implements Serializable {
         return user;
     }
 
-    public String getDate() {
-        return datetime;
+    public String getTimestamp() {
+        return timestamp;
     }
 
+//    public String getFormattedDate(){
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM d k:mm:ss z y", Locale.US);
+//        return dateFormat.format(new Date(timestamp));
+//    }
     public String getPost() {
         return post;
     }
@@ -71,14 +79,14 @@ public class Status implements Serializable {
         Status status = (Status) o;
         return Objects.equals(post, status.post) &&
                 Objects.equals(user, status.user) &&
-                Objects.equals(datetime, status.datetime) &&
+                Objects.equals(timestamp, status.timestamp) &&
                 Objects.equals(mentions, status.mentions) &&
                 Objects.equals(urls, status.urls);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(post, user, datetime, mentions, urls);
+        return Objects.hash(post, user, timestamp, mentions, urls);
     }
 
     @Override
@@ -86,7 +94,7 @@ public class Status implements Serializable {
         return "Status{" +
                 "post='" + post + '\'' +
                 ", user=" + user +
-                ", datetime=" + datetime +
+                ", timestamp=" + timestamp +
                 ", mentions=" + mentions +
                 ", urls=" + urls +
                 '}';
